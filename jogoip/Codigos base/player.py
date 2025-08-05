@@ -21,6 +21,29 @@ class Player(pygame.sprite.Sprite):
         self.image = self.frame
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
+    def update(self, keys):#movimentacao do player
+        dx, dy = 0,0
+        if keys[pygame.K_w]: #cima
+            dy = -self.speed
+        
+        elif keys[pygame.K_s]: #baixo
+            dy = self.speed
+
+        if keys[pygame.K_a]: #esquerda
+            dx = -self.speed
+
+        elif keys[pygame.K_d]: #direita
+            dx = self.speed
+
+        if dx != 0 and dy != 0: #igualar velocidade na diagonal
+            dx *= 0.7071
+            dy *= 0.7071
+
+        self.x += dx
+        self.y += dy
+        self.rect.topleft = (self.x, self.y) #atualiza o x e y atual
+
+
     def draw(self, tela):
         """
         Renderiza os elementos do nivel

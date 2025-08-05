@@ -7,7 +7,7 @@ class Game:
         self.tela = tela
         self.clock = pygame.time.Clock() 
         self.running = True
-        self.player = Player(x=100, y=100, sheet_player=r'img\sheets\personagem principal\mc (2).png')
+        self.player = Player(x=100, y=100, sheet_player=r'jogoip\img\sheets\personagem principal\New Piskel (1).png')
         
         self.all_sprites = pygame.sprite.Group() #grupo de sprites
         self.all_sprites.add(self.player)
@@ -16,7 +16,7 @@ class Game:
         while self.running:
             self.clock.tick(fps) #define o fps do jogo
             self.eventos() #avalia acoes do jogador (cima, baixo, saiu do jogo, etc...)
-            self.update() #incompleto
+            self.update() #movimentacao
             self.paint() #coloca cores na tela
     
     def eventos(self):
@@ -25,7 +25,8 @@ class Game:
                 self.running = False #sai do jogo
     
     def update(self):
-        pass
+        keys = pygame.key.get_pressed()
+        self.player.update(keys)
 
     def paint(self):
         self.tela.fill(cores["preto"])
