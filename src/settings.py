@@ -1,6 +1,6 @@
 import pygame
 
-largura_tela = 1056
+largura_tela = 1200
 altura_tela = 720
 fps = 60
 cores = {

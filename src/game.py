@@ -7,7 +7,7 @@ class Game:
         self.tela = tela
         self.clock = pygame.time.Clock() 
         self.running = True
-        self.player = Player(x=100, y=100, sheet_player=r'img\sheets\personagem principal\mc (2).png')
+        self.player = Player(x=100, y=100, sheet_player=r'projeto ip1/assets/img/sheets/personagem principal/mc (2).png')
         
         self.all_sprites = pygame.sprite.Group() #grupo de sprites
         self.all_sprites.add(self.player)
