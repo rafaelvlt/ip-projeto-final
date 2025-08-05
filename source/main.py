@@ -2,6 +2,7 @@ import pygame
 from settings import largura_tela, altura_tela 
 from game import Game
 
+
 def main():
     pygame.init()
     tela = pygame.display.set_mode((largura_tela, altura_tela))  #dimensoes da tela de jogo

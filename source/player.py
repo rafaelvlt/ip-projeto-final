@@ -43,10 +43,5 @@ class Player(pygame.sprite.Sprite):
         self.y += dy
         self.rect.topleft = (self.x, self.y) #atualiza o x e y atual
 
-
-    def draw(self, tela):
-        """
-        Renderiza os elementos do nivel
-        """
-        tela.all_sprites.draw(tela)
+   
 
