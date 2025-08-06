@@ -31,4 +31,20 @@ class Arma(ABC):
     def upgrade(self):
         self._nivel += 1
 
-    
+
+class Projetil(pygame.sprite.Sprite):
+    def __init__(self, pos, cor, grupo_sprites):
+        super().__init__(grupo_sprites) 
+        self.image = pygame.Surface((8, 15))
+        self.image.fill(cor)
+        self.rect = self.image.get_rect(center=pos)
+        self.velocidade = 10
+        self.pos = pygame.math.Vector2(self.rect.center)
+
+    def update(self):
+        self.pos.y -= self.velocidade
+        self.rect.center = self.pos
+        
+        if self.rect.bottom < 0:
+            self.kill()
+            
