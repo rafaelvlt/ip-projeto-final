@@ -1,5 +1,5 @@
 import pygame
-from settings import largura_tela, altura_tela 
+from settings import *
 from game import Game
 
 

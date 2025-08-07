@@ -1,4 +1,8 @@
 import pygame
+from os.path import join
+from random import randint
+from abc import ABC, abstractmethod
+
 
 largura_tela = 1200
 altura_tela = 720
