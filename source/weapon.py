@@ -81,7 +81,7 @@ class Projetil(pygame.sprite.Sprite):
         #classe projétil multipropósito, capaz de receber velocidade e imagem diferente dependendo do tipo de arma
         super().__init__(grupo_sprites) 
         self.image = surface
-        self.rect = self.image.get_frect(center=posicao_inicial)
+        self.rect = self.image.get_rect(center=posicao_inicial)
         self.posicao = pygame.math.Vector2(posicao_inicial)
         self.direcao = pygame.math.Vector2(direcao)
         self.velocidade = velocidade
