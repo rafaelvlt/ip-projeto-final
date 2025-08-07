@@ -2,6 +2,17 @@ import pygame
 from settings import *
 from player import *
 from items import *
+from weapon import *
+
+#CÓDIGO PARA TESTAR ARMA, SERÁ REMOVIDO DEPOIS
+class InimigoDeTeste(pygame.sprite.Sprite):
+    def __init__(self, posicao, grupos):
+        super().__init__(grupos)
+        self.image = pygame.Surface((40, 40)); self.image.fill('white')
+        self.rect = self.image.get_rect(center=posicao)
+        self.posicao = pygame.math.Vector2(self.rect.center)
+    def update(self, delta_time):
+        pass # Inimigo fica parado
 
 class Game:
     def __init__(self, tela):
@@ -13,9 +24,7 @@ class Game:
         self.life_orb = Items(x=300, y=300, sheet_item=join('assets', 'img', 'lifeOrb.png'))
         self.expShard = Items(x=700, y=500, sheet_item=join('assets', 'img', 'expShard.png'))
         self.bigShard = Items(x=200, y=400, sheet_item=join('assets', 'img', 'bigShard.png'))
-        
-        #import
-        pinpong_surface = pygame.image.load(join('assets', 'img', 'bola_pingpong.png'))
+
 
         self.all_sprites = pygame.sprite.Group() #grupo de sprites
         self.all_sprites.add(self.life_orb)
@@ -26,14 +35,27 @@ class Game:
         self.item_group.add(self.expShard)
         self.item_group.add(self.bigShard)
 
+        self.inimigos_grupo = pygame.sprite.Group()
+        self.projeteis_grupo = pygame.sprite.Group()
+        
+        #CÓDIGO DE TESTE, DEVE SER REMOVIDO DEPOIS
+        if not hasattr(self.player, 'armas'):
+            self.player.armas = {}
+        InimigoDeTeste(posicao=(1000, 360), grupos=(self.all_sprites, self.inimigos_grupo))
+        InimigoDeTeste(posicao=(200, 200), grupos=(self.all_sprites, self.inimigos_grupo))
+
         for item in self.item_group.copy():
             if self.player.rect.colliderect(item.rect):
                 self.item_group.remove(item)
 
-        
-
-
-        
+        #CODIGO PARA TESTES, DEVE SER RETIRADO DEPOIS
+        arma_Loop = Arma_Loop(
+            jogador=self.player,
+            cooldown=1500,
+            grupo_projeteis=self.projeteis_grupo,
+            grupo_inimigos=self.inimigos_grupo
+        )
+        self.player.armas['Laço'] = arma_Loop
         
         
 
@@ -53,7 +75,14 @@ class Game:
     def update(self, delta_time):
         keys = pygame.key.get_pressed()
         self.player.update(keys, delta_time)
+        self.inimigos_grupo.update(delta_time)
+        self.projeteis_grupo.update(delta_time)
         self.all_sprites.update(delta_time)
+        
+        #CODIGO PARA TESTE, DEVE SER REMOVIDO DEPOIS
+        for arma in self.player.armas.values():
+            arma.update()
+
         for item in self.item_group.copy():
             if self.player.rect.colliderect(item.rect):
                 self.item_group.remove(item)
@@ -61,5 +90,8 @@ class Game:
     def paint(self):
         self.tela.fill(cores["preto"])
         self.item_group.draw(self.tela)
+        self.inimigos_grupo.draw(self.tela)
+        self.projeteis_grupo.draw(self.tela)
         self.tela.blit(self.player.image, self.player.rect)
-        pygame.display.flip() #pinta a tela
+
+        pygame.display.update() #pinta a tela
