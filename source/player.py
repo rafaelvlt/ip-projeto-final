@@ -10,11 +10,16 @@ class Player(pygame.sprite.Sprite):
         sheet_player: Imagem.
         """
         super().__init__()
+        #envolve movimentação
         self.direcao = pygame.math.Vector2()
         self.velocidade = 500
         self.frame = pygame.image.load(sheet_player).convert_alpha()
         self.image = self.frame
         self.rect = self.image.get_frect(center = (altura_tela/2, largura_tela/2))
+        self.posicao = pygame.math.Vector2(self.rect.center)
+
+        #armas do player
+        self.armas = {}
 
     def update(self, keys, delta_time):#movimentacao do player
         #delta_time serve pra o jogador sempre se mover na mesma velocidade independente do fps
@@ -28,7 +33,9 @@ class Player(pygame.sprite.Sprite):
         if self.direcao != (0,0):
             self.direcao = self.direcao.normalize()
 
-        self.rect.center +=  self.direcao * self.velocidade * delta_time #atualiza a posição atual
-
+        self.posicao +=  self.direcao * self.velocidade * delta_time #atualiza a posição atual
+        self.rect.centerx = self.posicao.x
+        self.rect.centery = self.posicao.y
    
+
 
