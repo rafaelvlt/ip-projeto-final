@@ -8,18 +8,27 @@ class Items(pygame.sprite.Sprite):
 
         self.x = x
         self.y = y
-        self.speed = 3
-        
+        self.y_original = self.y
+        self.speed = -5
+        self.gravidade = 0.4
+        self.dropping = True
         self.frame = pygame.image.load(sheet_item).convert_alpha()
         self.image = self.frame
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
-    def drop(self):
-        self.dy = -self.speed
-        self.y += self.dy
-        pygame.time.delay(500)
-        self.dyy = self.speed
-        self.y += self.dy
+    def update(self):
+        if self.dropping:
+            self.speed += self.gravidade
+            self.y += self.speed
+            self.rect.y = self.y
+
+            if self.speed > 0 and self.y >= self.y_original:
+                self.y = self.y_original
+                self.rect.y = self.y
+                self.speed = 0
+                self.dropping = False
+    
+        
 
 
         
