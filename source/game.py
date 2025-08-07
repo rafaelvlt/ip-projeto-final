@@ -3,6 +3,7 @@ from settings import *
 from player import *
 from items import *
 from weapon import *
+from os.path import join
 
 #CÓDIGO PARA TESTAR ARMA, SERÁ REMOVIDO DEPOIS
 class InimigoDeTeste(pygame.sprite.Sprite):

@@ -15,7 +15,7 @@ class Player(pygame.sprite.Sprite):
         self.velocidade = 500
         self.frame = pygame.image.load(sheet_player).convert_alpha()
         self.image = self.frame
-        self.rect = self.image.get_frect(center = (altura_tela/2, largura_tela/2))
+        self.rect = self.image.get_rect(center = (altura_tela/2, largura_tela/2))
         self.posicao = pygame.math.Vector2(self.rect.center)
 
         #armas do player
