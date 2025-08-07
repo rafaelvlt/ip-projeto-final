@@ -4,29 +4,34 @@ from settings import *
 
 
 class Items(pygame.sprite.Sprite):
-    def __init__(self, x, y, sheet_item):
-        super().__init__()
+    def __init__(self, sheet_item, posicao, grupos):
+        super().__init__(grupos)
+        #posicao
+        self.posicao_original = pygame.math.Vector2(posicao)
+        self.posicao = pygame.math.Vector2(posicao)
 
-        self.x = x
-        self.y = y
-        self.y_original = self.y
-        self.speed = -5
+        #drop
+        self.direcao = (0, 1)
+        self.velocidade = -5
         self.gravidade = 0.4
         self.dropping = True
+
+        #imagem
         self.frame = pygame.image.load(sheet_item).convert_alpha()
         self.image = self.frame
-        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        self.rect = self.image.get_rect(center = self.posicao)
 
     def update(self, delta_time):
         if self.dropping:
-            self.speed += self.gravidade
-            self.y += self.speed
-            self.rect.y = self.y
-
-            if self.speed > 0 and self.y >= self.y_original:
-                self.y = self.y_original
-                self.rect.y = self.y
-                self.speed = 0
+            #movimento de drop
+            self.velocidade += self.gravidade
+            self.posicao += self.direcao * self.velocidade * delta_time
+            self.rect.centery = self.posicao.y
+            
+            if self.velocidade > 0 and self.y >= self.posicao_original.y:
+                self.posicao.y = self.posicao_original.y
+                self.rect.centery = self.posicao.y
+                self.velocidade = 0
                 self.dropping = False
     
         

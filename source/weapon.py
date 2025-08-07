@@ -80,13 +80,18 @@ class Projetil(pygame.sprite.Sprite):
     def __init__(self, surface, posicao_inicial, velocidade, direcao, dano, grupo_sprites):
         #classe projétil multipropósito, capaz de receber velocidade e imagem diferente dependendo do tipo de arma
         super().__init__(grupo_sprites) 
+        #imagem e rect
         self.image = surface
-        self.rect = self.image.get_frect(center=posicao_inicial)
+        self.rect = self.image.get_rect(center=posicao_inicial)
+        
+        #posicao e movimento
         self.posicao = pygame.math.Vector2(posicao_inicial)
         self.direcao = pygame.math.Vector2(direcao)
         self.velocidade = velocidade
-        self.dano = dano
 
+        #logica de armas
+        self.dano = dano
+        self.inimigos_atingidos = set()
     def update(self, delta_time):
         #faz se mover na direção do vetor dado na velocidade correta
         self.posicao +=  self.direcao * self.velocidade * delta_time #atualiza a posição atual se movendo para a direção
