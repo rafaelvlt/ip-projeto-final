@@ -1,4 +1,5 @@
 import pygame
+from settings import *
 
 
 
@@ -16,7 +17,7 @@ class Items(pygame.sprite.Sprite):
         self.image = self.frame
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
 
-    def update(self):
+    def update(self, delta_time):
         if self.dropping:
             self.speed += self.gravidade
             self.y += self.speed
