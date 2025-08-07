@@ -30,6 +30,8 @@ class Arma_Loop(Arma):
         super().__init__(jogador=jogador, cooldown=cooldown)
         self.velocidade = 1500
         self.surface_pinpong = pygame.image.load(join('assets', 'img', 'bola_pingpong.png'))
+        novo_tamanho = (80, 80)
+        self.surface_pinpong = pygame.transform.scale(self.surface_pinpong, novo_tamanho)
 
         #conexão com jogador e grupos
         self.grupo_projeteis = grupo_projeteis
