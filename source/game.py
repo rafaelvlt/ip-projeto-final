@@ -5,6 +5,7 @@ from items import *
 from weapon import *
 from os.path import join
 from menu import *
+from hud import *
 
 #CÓDIGO PARA TESTAR ARMA, SERÁ REMOVIDO DEPOIS
 class InimigoDeTeste(pygame.sprite.Sprite):
@@ -25,6 +26,7 @@ class Game:
         self.tela = tela
         self.clock = pygame.time.Clock() 
         self.running = True
+        self.hud = HUD(self)
 
         #máquina de estado
         self.estado_do_jogo = "menu_principal"
@@ -111,6 +113,7 @@ class Game:
             self.inimigos_grupo.draw(self.tela)
             self.projeteis_grupo.draw(self.tela)
             self.all_sprites.draw(self.tela)
+            self.hud.draw(self.tela)
         
         elif self.estado_do_jogo == 'pausa':
             self.tela.fill(cores["preto"])
@@ -131,9 +134,9 @@ class Game:
 
         #instancia todos objetos iniciais para criálos no mapa
         self.player = Player(sheet_player=join('assets', 'img', 'player.png'), grupos=self.all_sprites)
-        self.life_orb = Items(posicao=(300, 300), sheet_item=join('assets', 'img', 'lifeOrb.png'), grupos=(self.all_sprites, self.item_group))
-        self.expShard = Items(posicao=(700, 500), sheet_item=join('assets', 'img', 'expShard.png'), grupos=(self.all_sprites, self.item_group))
-        self.bigShard = Items(posicao=(200, 400), sheet_item=join('assets', 'img', 'bigShard.png'), grupos=(self.all_sprites, self.item_group))
+        self.life_orb = Items(posicao=(300, 300), sheet_item=join('assets', 'img', 'lifeOrb.png'), tipo='life_orb',  grupos=(self.all_sprites, self.item_group))
+        self.expShard = Items(posicao=(700, 500), sheet_item=join('assets', 'img', 'expShard.png'), tipo='exp_shard', grupos=(self.all_sprites, self.item_group))
+        self.bigShard = Items(posicao=(200, 400), sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=(self.all_sprites, self.item_group))
                 
         #CÓDIGO DE TESTE, DEVE SER REMOVIDO DEPOIS
         if not hasattr(self.player, 'armas'):
@@ -154,14 +157,19 @@ class Game:
         self.estado_do_jogo = 'jogando'
 
     def colisao(self):
+        #coleta de itens
         colisao_player_items = pygame.sprite.spritecollide(self.player, self.item_group, dokill=True)
-        
+        if colisao_player_items:
+            for item in colisao_player_items:
+                if item.tipo in self.player.coletaveis:
+                    self.player.coletaveis[item.tipo] += 1
 
-
+        #dano para o jogador em caso de colisão
         colisao_player_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)
         if colisao_player_inimigos != []:
             self.player.vida -= 1
         
+        #colisão entre inimigos e projétil
         colisao_inimigo_projetil =  pygame.sprite.groupcollide(self.projeteis_grupo, self.inimigos_grupo, False, False)
         for projetil in self.projeteis_grupo:
             inimigos_em_contato_agora = colisao_inimigo_projetil.get(projetil, [])

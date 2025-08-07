@@ -25,6 +25,11 @@ class Player(pygame.sprite.Sprite):
 
         #status
         self.vida = 10
+        self.coletaveis = {
+            "exp_shard": 0,
+            "life_orb": 0,
+            "big_shard":0
+        }
 
     def update(self, keys, delta_time):#movimentacao do player
         #delta_time serve pra o jogador sempre se mover na mesma velocidade independente do fps
@@ -41,6 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.posicao +=  self.direcao * self.velocidade * delta_time #atualiza a posição atual
         self.rect.centerx = self.posicao.x
         self.rect.centery = self.posicao.y
+
    
 
 

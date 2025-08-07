@@ -4,7 +4,7 @@ from settings import *
 
 
 class Items(pygame.sprite.Sprite):
-    def __init__(self, sheet_item, posicao, grupos):
+    def __init__(self, sheet_item, posicao, tipo, grupos):
         super().__init__(grupos)
         #posicao
         self.posicao_original = pygame.math.Vector2(posicao)
@@ -20,6 +20,8 @@ class Items(pygame.sprite.Sprite):
         self.frame = pygame.image.load(sheet_item).convert_alpha()
         self.image = self.frame
         self.rect = self.image.get_rect(center = self.posicao)
+
+        self.tipo = tipo
 
     def update(self, delta_time):
         if self.dropping:
