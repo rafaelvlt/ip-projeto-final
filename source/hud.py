@@ -25,12 +25,15 @@ class HUD:
         contagem_big = self.game.player.coletaveis['big_shard']
         contagem_life = self.game.player.coletaveis['life_orb']
 
-        exp_surf = self.font.render(f'{contagem_exp}', True, 'white')
-        exp_rect = exp_surf.get_rect(midleft = (60, 40))
-        big_surf = self.font.render(f'{contagem_big}', True, 'white')
-        big_rect = big_surf.get_rect(midleft = (60, 90))
+        #texto
         life_surf = self.font.render(f'{contagem_life}', True, 'white')
-        life_rect = life_surf.get_rect(midleft = (60, 140))
+        life_rect = life_surf.get_rect(midleft = (60, 40))
+
+        exp_surf = self.font.render(f'{contagem_exp}', True, 'white')
+        exp_rect = exp_surf.get_rect(midleft = (60, 90))
+
+        big_surf = self.font.render(f'{contagem_big}', True, 'white')
+        big_rect = big_surf.get_rect(midleft = (60, 140))
 
 
         tela.blit(self.icone_life_orb, (20, 25))
