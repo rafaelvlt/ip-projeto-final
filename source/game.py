@@ -9,7 +9,6 @@ from menu import *
 from hud import *
 from enemies import InimigoBase, InimigoCirculo
 
-LARGURA_TELA, ALTURA_TELA = 800, 600
 
 class Game:
     def __init__(self, tela):
@@ -49,7 +48,7 @@ class Game:
             delta_time = self.clock.tick(fps) / 1000 #define o fps do jogo e retorna o delta time em milisegundo, por isso divide por 1k
             self.eventos() #avalia acoes do jogador (cima, baixo, saiu do jogo, etc...)
             self.update(delta_time) #movimentacao
-            self.paint() #coloca cores na tela
+            self.draw() #desenha os sprites na tela
     
     def eventos(self):
         for evento in pygame.event.get():
@@ -81,10 +80,11 @@ class Game:
 
     def update(self, delta_time):
         if self.estado_do_jogo == "jogando":
-            keys = pygame.key.get_pressed()
-            self.player.update(keys, delta_time)
+            self.player.update(delta_time)
             self.inimigos_grupo.update(delta_time)
             self.projeteis_grupo.update(delta_time)
+
+
             self.tempo_proximo_spawn += delta_time
             
             #horda de inimigos
@@ -112,7 +112,8 @@ class Game:
             if self.player.vida <= 0:
                 self.estado_do_jogo = 'game_over'
 
-    def paint(self):
+    def draw(self):
+        #utiliza ifs para detectar estado do jogo e decidir o que vai desenhar
         if self.estado_do_jogo == "menu_principal":
             self.menu_principal.draw(self.tela)
 
@@ -172,13 +173,13 @@ class Game:
     def spawnar_inimigo(self):
         lado = random.choice(['top', 'bottom', 'left', 'right'])
         if lado == 'top':
-            pos = (random.randint(0, LARGURA_TELA), -50)
+            pos = (random.randint(0, largura_tela), -50)
         elif lado == 'bottom':
-            pos = (random.randint(0, LARGURA_TELA), ALTURA_TELA + 50)
+            pos = (random.randint(0, largura_tela), altura_tela + 50)
         elif lado == 'left':
-            pos = (-50, random.randint(0, ALTURA_TELA))
+            pos = (-50, random.randint(0, altura_tela))
         else: # 'right'
-            pos = (LARGURA_TELA + 50, random.randint(0, ALTURA_TELA))
+            pos = (largura_tela + 50, random.randint(0, altura_tela))
         
         # tipos de inimigos que podem aparecer
         tipos_de_inimigos_possiveis = [InimigoBase, InimigoCirculo]
@@ -191,11 +192,13 @@ class Game:
     def colisao(self):
         #coleta de itens
         colisao_player_items = pygame.sprite.spritecollide(self.player, self.item_group, dokill=True)
+        
         if colisao_player_items:
             for item in colisao_player_items:
                 if item.tipo in self.player.coletaveis:
                     self.player.coletaveis[item.tipo] += 1
-
+  
+  
         #dano para o jogador em caso de colisão
         colisao_player_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)
         if colisao_player_inimigos != []:
