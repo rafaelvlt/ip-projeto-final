@@ -8,7 +8,7 @@ from os.path import join
 from menu import *
 from hud import *
 from enemies import InimigoBase, InimigoCirculo
-
+from grupos import AllSprites
 
 class Game:
     def __init__(self, tela):
@@ -25,7 +25,7 @@ class Game:
         self.tela_game_over = TelaGameOver(self)
 
         #grupos de sprite
-        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites = AllSprites()
         self.item_group = pygame.sprite.Group()
         self.inimigos_grupo = pygame.sprite.Group()
         self.projeteis_grupo = pygame.sprite.Group()
@@ -80,6 +80,7 @@ class Game:
 
     def update(self, delta_time):
         if self.estado_do_jogo == "jogando":
+            self.all_sprites.update(delta_time)
             self.player.update(delta_time)
             self.inimigos_grupo.update(delta_time)
             self.projeteis_grupo.update(delta_time)
@@ -119,15 +120,12 @@ class Game:
 
         elif self.estado_do_jogo == 'jogando':
             self.tela.fill(cores["preto"])
-            self.item_group.draw(self.tela)
-            self.inimigos_grupo.draw(self.tela)
-            self.projeteis_grupo.draw(self.tela)
-            self.all_sprites.draw(self.tela)
+            self.all_sprites.draw(self.player.rect.center)
             self.hud.draw(self.tela)
         
         elif self.estado_do_jogo == 'pausa':
             self.tela.fill(cores["preto"])
-            self.all_sprites.draw(self.tela)
+            self.all_sprites.draw(self.player.rect.center)
             self.menu_pausa.draw(self.tela)
 
         elif self.estado_do_jogo == "game_over":
@@ -162,24 +160,30 @@ class Game:
         #CODIGO PARA TESTES, DEVE SER RETIRADO DEPOIS
         arma_Loop = Arma_Loop(
             jogador=self.player,
-            cooldown=1500,
-            grupo_projeteis=self.projeteis_grupo,
-            grupo_inimigos=self.inimigos_grupo
+            grupos=(self.all_sprites, self.projeteis_grupo, self.inimigos_grupo)
         )
         self.player.armas['Laço'] = arma_Loop
 
         self.estado_do_jogo = 'jogando'
     
     def spawnar_inimigo(self):
+        camera_center_x = self.player.posicao.x
+        camera_center_y = self.player.posicao.y
+
+        borda_esquerda = camera_center_x - largura_tela / 2
+        borda_direita = camera_center_x + largura_tela / 2
+        borda_topo = camera_center_y - altura_tela / 2
+        borda_baixo = camera_center_y + altura_tela / 2
+    
         lado = random.choice(['top', 'bottom', 'left', 'right'])
         if lado == 'top':
-            pos = (random.randint(0, largura_tela), -50)
+            pos = (random.uniform(borda_esquerda, borda_direita), borda_topo - 50)
         elif lado == 'bottom':
-            pos = (random.randint(0, largura_tela), altura_tela + 50)
+            pos = (random.uniform(borda_esquerda, borda_direita), borda_baixo + 50)
         elif lado == 'left':
-            pos = (-50, random.randint(0, altura_tela))
+            pos = (borda_esquerda - 50, random.uniform(borda_topo, borda_baixo))
         else: # 'right'
-            pos = (largura_tela + 50, random.randint(0, altura_tela))
+            pos = (borda_direita + 50, random.uniform(borda_topo, borda_baixo))
         
         # tipos de inimigos que podem aparecer
         tipos_de_inimigos_possiveis = [InimigoBase, InimigoCirculo]

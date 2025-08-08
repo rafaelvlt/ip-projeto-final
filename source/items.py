@@ -11,7 +11,7 @@ class Items(pygame.sprite.Sprite):
         self.posicao = pygame.math.Vector2(posicao)
 
         #drop
-        self.direcao = (0, 1)
+        self.direcao = pygame.math.Vector2(0, 1)
         self.velocidade = -5
         self.gravidade = 0.4
         self.dropping = True
@@ -30,7 +30,7 @@ class Items(pygame.sprite.Sprite):
             self.posicao += self.direcao * self.velocidade * delta_time
             self.rect.centery = self.posicao.y
             
-            if self.velocidade > 0 and self.y >= self.posicao_original.y:
+            if self.velocidade > 0 and self.posicao.y >= self.posicao_original.y:
                 self.posicao.y = self.posicao_original.y
                 self.rect.centery = self.posicao.y
                 self.velocidade = 0

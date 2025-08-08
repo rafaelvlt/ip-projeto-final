@@ -4,10 +4,10 @@ from player import *
 from game import *
 
 class Arma(ABC):
-    def __init__(self, jogador, cooldown):
+    def __init__(self, jogador):
         self.jogador = jogador
         self.nivel = 1
-        self.cooldown = cooldown
+        self.cooldown = 0
         self.ultimo_tiro = 0
 
     
@@ -15,7 +15,7 @@ class Arma(ABC):
     def disparar(self):
         pass
 
-    def update(self):
+    def update(self, jogador=None):
             agora = pygame.time.get_ticks()
             if agora - self.ultimo_tiro > self.cooldown:
                 self.disparar()
@@ -25,20 +25,26 @@ class Arma(ABC):
         self.nivel += 1 
 
 class Arma_Loop(Arma):
-    def __init__(self, jogador, cooldown, grupo_projeteis, grupo_inimigos):
+    def __init__(self, jogador, grupos):
+        #grupos index: 0 = all_sprites, 1= grupo_projeteis 2= grupo_inimigos
         #variáveis padrões
-        super().__init__(jogador=jogador, cooldown=cooldown)
-        self.velocidade = 1500
+        super().__init__(jogador=jogador)
+        #imagem
         self.surface_pinpong = pygame.image.load(join('assets', 'img', 'bola_pingpong.png'))
         novo_tamanho = (80, 80)
         self.surface_pinpong = pygame.transform.scale(self.surface_pinpong, novo_tamanho)
 
         #conexão com jogador e grupos
-        self.grupo_projeteis = grupo_projeteis
-        self.grupo_inimigos = grupo_inimigos
+        self.all_sprites = grupos[0]
+        self.grupo_projeteis = grupos[1]
+        self.grupo_inimigos = grupos[2]
+
         #específicos da arma
-        self.rebatidas = 2
         self.dano = 1
+        self.velocidade = 1500
+        self.cooldown = 1500
+        self.rebatidas = 2
+        
 
     def disparar(self):
         #detecta o inimigo mais próximo
@@ -60,11 +66,11 @@ class Arma_Loop(Arma):
 
         Projetil_PingPong(
                 surface=self.surface_pinpong, 
-                posicao_inicial=self.jogador.posicao,
+                jogador=self.jogador,
                 velocidade=self.velocidade,
                 direcao=direcao_tiro,
                 dano=self.dano,
-                grupos=self.grupo_projeteis,
+                grupos=(self.all_sprites,self.grupo_projeteis),
                 rebatidas=self.rebatidas
         )
 
@@ -79,15 +85,15 @@ class Arma_Loop(Arma):
 
 
 class Projetil(pygame.sprite.Sprite):
-    def __init__(self, surface, posicao_inicial, velocidade, direcao, dano, grupo_sprites):
+    def __init__(self, surface, jogador, velocidade, direcao, dano, grupo_sprites):
         #classe projétil multipropósito, capaz de receber velocidade e imagem diferente dependendo do tipo de arma
         super().__init__(grupo_sprites) 
         #imagem e rect
         self.image = surface
-        self.rect = self.image.get_rect(center=posicao_inicial)
+        self.rect = self.image.get_rect(center=jogador.posicao)
         
         #posicao e movimento
-        self.posicao = pygame.math.Vector2(posicao_inicial)
+        self.posicao = pygame.math.Vector2(jogador.posicao)
         self.direcao = pygame.math.Vector2(direcao)
         self.velocidade = velocidade
 
@@ -98,38 +104,45 @@ class Projetil(pygame.sprite.Sprite):
         #faz se mover na direção do vetor dado na velocidade correta
         self.posicao +=  self.direcao * self.velocidade * delta_time #atualiza a posição atual se movendo para a direção
         #move o rect do projétil
-        self.rect.centerx = self.posicao.x
-        self.rect.centery = self.posicao.y
+        self.rect.centerx = round(self.posicao.x)
+        self.rect.centery = round(self.posicao.y)
 
 
 class Projetil_PingPong(Projetil):
-    def __init__(self, surface, posicao_inicial, velocidade, direcao, dano, grupos, rebatidas):
-        super().__init__(surface, posicao_inicial, velocidade, direcao, dano, grupos)
+    def __init__(self, surface, jogador, velocidade, direcao, dano, grupos, rebatidas):
+        super().__init__(surface, jogador, velocidade, direcao, dano, grupos)
         self.rebatidas = rebatidas
-            
+        self.jogador = jogador
+        self.posicao_inicial = jogador.posicao
+
     def update(self, delta_time):
         super().update(delta_time)
 
         #lógica para quicar nas extremidades da tela
         rebateu = False
 
+        camera_borda_esquerda = self.jogador.posicao.x - (largura_tela / 2)
+        camera_borda_direita = self.jogador.posicao.x + (largura_tela / 2)
+        camera_borda_topo = self.jogador.posicao.y - (altura_tela / 2)
+        camera_borda_baixo = self.jogador.posicao.y + (altura_tela / 2)
+
         #checa paredes horizontais
-        if self.posicao.x <= 0:
-            self.posicao.x = 0
+        if self.posicao.x <= camera_borda_esquerda:
+            self.posicao.x = camera_borda_esquerda
             self.direcao.x *= -1
             rebateu = True
-        elif self.posicao.x >= largura_tela:
-            self.posicao.x = largura_tela
+        elif self.posicao.x >= camera_borda_direita:
+            self.posicao.x = camera_borda_direita
             self.direcao.x *= -1
             rebateu = True
 
         #checa paredes verticais
-        if self.posicao.y <= 0:
-            self.posicao.y = 0 #
+        if self.posicao.y <= camera_borda_topo:
+            self.posicao.y = camera_borda_topo #
             self.direcao.y *= -1
             rebateu = True
-        elif self.posicao.y >= altura_tela:
-            self.posicao.y = altura_tela 
+        elif self.posicao.y >= camera_borda_baixo:
+            self.posicao.y = camera_borda_baixo 
             self.direcao.y *= -1
             rebateu = True
         
