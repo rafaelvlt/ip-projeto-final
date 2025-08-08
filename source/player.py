@@ -5,9 +5,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, sheet_player, grupos):
         """
         Inicia o jogador.
-        x: Posição x inicial.
-        y: Posição y inicial.
         sheet_player: Imagem.
+        grupos: grupos de sprite
         """
         super().__init__(grupos)
         #envolve movimentação
@@ -24,12 +23,19 @@ class Player(pygame.sprite.Sprite):
         self.armas = {}
 
         #status
-        self.vida = 10
+        self.vida_maxima = 10
+        self.vida = self.vida_maxima
         self.coletaveis = {
             "exp_shard": 0,
             "life_orb": 0,
             "big_shard":0
         }
+        self.experiencia = 0
+
+        #invencibilidade
+        self.invencivel = False
+        self.tempo_ultimo_dano = 0
+        self.duracao_invencibilidade = 200
     def input(self):
         #muda os vetores se eles estão sendo pressionados ou não
         #direita = 1, esquerda = -1, cima = 1, baixo = -1
@@ -47,9 +53,30 @@ class Player(pygame.sprite.Sprite):
         self.rect.centerx = self.posicao.x
         self.rect.centery = self.posicao.y
 
+    def tomar_dano(self, inimigo):
+        if not self.invencivel:
+            self.vida -= inimigo.dano
+            self.invencivel = True
+            self.tempo_ultimo_dano = pygame.time.get_ticks()
+
+
     def update(self, delta_time):
         self.input()
         self.movimentacao(delta_time)
+        if self.invencivel:
+            agora = pygame.time.get_ticks()
+            if agora - self.tempo_ultimo_dano > self.duracao_invencibilidade:
+                self.invencivel = False
+            
+            #pisca player
+            alpha = 255 if int(pygame.time.get_ticks() / 50) % 2 == 0 else 0
+            self.image.set_alpha(alpha)
+        else:
+            self.image.set_alpha(255)
+            
+
+
+
 
    
 

@@ -206,7 +206,7 @@ class Game:
         #dano para o jogador em caso de colisão
         colisao_player_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)
         if colisao_player_inimigos != []:
-            self.player.vida -= 1
+            self.player.tomar_dano(colisao_player_inimigos[0])
         
         #colisão entre inimigos e projétil
         colisao_inimigo_projetil =  pygame.sprite.groupcollide(self.projeteis_grupo, self.inimigos_grupo, False, False)
