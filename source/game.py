@@ -1,4 +1,5 @@
 import pygame
+import random
 from settings import *
 from player import *
 from items import *
@@ -6,19 +7,9 @@ from weapon import *
 from os.path import join
 from menu import *
 from hud import *
+from enemies import InimigoBase, InimigoCirculo
 
-#CÓDIGO PARA TESTAR ARMA, SERÁ REMOVIDO DEPOIS
-class InimigoDeTeste(pygame.sprite.Sprite):
-    def __init__(self, posicao, grupos):
-        super().__init__(grupos)
-        self.image = pygame.Surface((40, 40)); self.image.fill('white')
-        self.rect = self.image.get_rect(center=posicao)
-        self.posicao = pygame.math.Vector2(self.rect.center)
-
-        self.vida = 5
-        self.sendo_colidido = False
-    def update(self, delta_time):
-        pass # Inimigo fica parado
+LARGURA_TELA, ALTURA_TELA = 800, 600
 
 class Game:
     def __init__(self, tela):
@@ -51,6 +42,7 @@ class Game:
         #self.item_group.add(self.expShard)
         #self.item_group.add(self.bigShard)
 
+    
 
     def run(self):
         while self.running:
@@ -93,6 +85,23 @@ class Game:
             self.player.update(keys, delta_time)
             self.inimigos_grupo.update(delta_time)
             self.projeteis_grupo.update(delta_time)
+            self.tempo_proximo_spawn += delta_time
+            
+            #horda de inimigos
+            if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
+                self.tempo_proximo_spawn = 0
+                for _ in range(5): # Cria 5 inimigos de uma vez
+                    self.spawnar_inimigo()
+
+            #o cronômetro já atingiu o tempo
+            if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
+                self.tempo_proximo_spawn = 0 # zera o cronômetro para a próxima contagem
+                self.spawnar_inimigo()      #  cria o inimigo
+            
+            #Deixa o jogo mais difícil com o tempo
+            if self.intervalo_spawn_atual > self.intervalo_minimo:
+                # Diminui um pouquinho o tempo de espera a cada segundo que passa
+                self.intervalo_spawn_atual -= self.fator_dificuldade * delta_time
 
             #CODIGO PARA TESTE, DEVE SER REMOVIDO DEPOIS
             for arma in self.player.armas.values():
@@ -132,6 +141,12 @@ class Game:
         self.projeteis_grupo.empty()
         self.inimigos_grupo.empty()
 
+        self.tempo_proximo_spawn = 0 #  SPAWN PARA UM NOVO JOGO
+        self.intervalo_spawn_inicial = 2.0  # Começa com um inimigo a cada 2s
+        self.intervalo_spawn_atual = self.intervalo_spawn_inicial
+        self.intervalo_minimo = 0.3         # Intervalo mais rápido possível
+        self.fator_dificuldade = 0.05       # Velocidade com que a dificuldade aumenta
+
         #instancia todos objetos iniciais para criálos no mapa
         self.player = Player(sheet_player=join('assets', 'img', 'player.png'), grupos=self.all_sprites)
         self.life_orb = Items(posicao=(300, 300), sheet_item=join('assets', 'img', 'lifeOrb.png'), tipo='life_orb',  grupos=(self.all_sprites, self.item_group))
@@ -141,8 +156,6 @@ class Game:
         #CÓDIGO DE TESTE, DEVE SER REMOVIDO DEPOIS
         if not hasattr(self.player, 'armas'):
             self.player.armas = {}
-        InimigoDeTeste(posicao=(1000, 360), grupos=(self.all_sprites, self.inimigos_grupo))
-        InimigoDeTeste(posicao=(200, 200), grupos=(self.all_sprites, self.inimigos_grupo))
 
         #cria arma inicial e entrega ela ao jogador
         #CODIGO PARA TESTES, DEVE SER RETIRADO DEPOIS
@@ -155,7 +168,26 @@ class Game:
         self.player.armas['Laço'] = arma_Loop
 
         self.estado_do_jogo = 'jogando'
+    
+    def spawnar_inimigo(self):
+        lado = random.choice(['top', 'bottom', 'left', 'right'])
+        if lado == 'top':
+            pos = (random.randint(0, LARGURA_TELA), -50)
+        elif lado == 'bottom':
+            pos = (random.randint(0, LARGURA_TELA), ALTURA_TELA + 50)
+        elif lado == 'left':
+            pos = (-50, random.randint(0, ALTURA_TELA))
+        else: # 'right'
+            pos = (LARGURA_TELA + 50, random.randint(0, ALTURA_TELA))
+        
+        # tipos de inimigos que podem aparecer
+        tipos_de_inimigos_possiveis = [InimigoBase, InimigoCirculo]
+        # sorteia um tipo de inimigo aleatoriamente
+        inimigo_escolhido = random.choice(tipos_de_inimigos_possiveis)
+        # Instância do tipo  sorteado
+        inimigo_escolhido(posicao=pos, grupos=(self.all_sprites, self.inimigos_grupo), jogador=self.player)
 
+        
     def colisao(self):
         #coleta de itens
         colisao_player_items = pygame.sprite.spritecollide(self.player, self.item_group, dokill=True)

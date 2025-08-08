@@ -1,0 +1,44 @@
+import pygame
+import math 
+
+class InimigoBase(pygame.sprite.Sprite):
+    # 'posicao_x' e 'posicao_y' sao as coordenadas de onde ele vai aparecer.
+    # 'jogador' é o objeto do jogador, para que o inimigo saiba quem ele deve seguir.
+    def __init__(self, posicao, grupos, jogador):
+        super().__init__(grupos)
+
+        # --- Atributos Padrão ---
+        self.velocidade = 100  # Velocidade do inimigo 
+        self.jogador = jogador
+        self.vida = 1
+
+        # --- Parte Visual do Inimigo PADRÃO ---
+        self.image = pygame.Surface((40, 40))
+        self.image.fill('white')
+        self.rect = self.image.get_rect(center=posicao)
+
+        # --- Parte de Posição e Colisão ---
+        self.posicao = pygame.math.Vector2(self.rect.center)
+
+
+    def update(self, delta_time):
+         # A lógica de seguir o jogador
+        direcao = self.jogador.rect.center - self.posicao
+        if direcao.length() > 0:
+            direcao.normalize_ip()
+        self.posicao += direcao * self.velocidade * delta_time
+        self.rect.center = self.posicao
+
+class InimigoCirculo(InimigoBase):
+    def __init__(self, posicao, grupos, jogador):
+        super().__init__(posicao, grupos, jogador)
+        
+        # --- Parte Visual do Inimigo CIRCULO ---
+        self.image = pygame.Surface((30, 30), pygame.SRCALPHA) 
+        pygame.draw.circle(self.image, 'cyan', (15, 15), 15)
+
+        self.rect = self.image.get_rect(center=self.posicao)
+        
+        # Comportamento
+        self.velocidade = 110
+        self.vida = 1
