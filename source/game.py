@@ -30,18 +30,6 @@ class Game:
         self.inimigos_grupo = pygame.sprite.Group()
         self.projeteis_grupo = pygame.sprite.Group()
 
-        #self.life_orb = Items(x=300, y=300, sheet_item=join('assets', 'img', 'lifeOrb.png'))
-        #self.expShard = Items(x=700, y=500, sheet_item=join('assets', 'img', 'expShard.png'))
-        #self.bigShard = Items(x=200, y=400, sheet_item=join('assets', 'img', 'bigShard.png'))
-
-        #self.all_sprites.add(self.life_orb)
-        #self.all_sprites.add(self.expShard)
-        #self.all_sprites.add(self.bigShard)
-        #self.item_group.add(self.life_orb)
-        #self.item_group.add(self.expShard)
-        #self.item_group.add(self.bigShard)
-
-    
 
     def run(self):
         while self.running:
@@ -110,7 +98,7 @@ class Game:
 
             self.colisao()
 
-            if self.player.vida <= 0:
+            if self.player.vida_atual <= 0:
                 self.estado_do_jogo = 'game_over'
 
     def draw(self):
