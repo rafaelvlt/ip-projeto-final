@@ -40,11 +40,12 @@ class MenuPrincipal:
         return None
 
     def draw(self, tela):
-    # não dá aqui, pra não cobrir o fundo
+        tela.fill((30, 30, 30))
         for i, texto in enumerate(self.opcoes):
             cor = (255, 0, 0) if i == self.selecionada else (255, 255, 255)
             txt = self.font.render(texto, True, cor)
             tela.blit(txt, (100, 100 + i * 60))
+
 # -----------------------------------------
 # Classe: MenuPausa
 # -----------------------------------------
