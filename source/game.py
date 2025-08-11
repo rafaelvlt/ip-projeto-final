@@ -30,13 +30,19 @@ class Game:
         self.inimigos_grupo = pygame.sprite.Group()
         self.projeteis_grupo = pygame.sprite.Group()
 
+        #assets dos itens para reaproveitar nos drops
+        self.assets_itens = {
+            "life_orb":  join('assets', 'img', 'lifeOrb.png'),
+            "exp_shard": join('assets', 'img', 'expShard.png'),
+            "big_shard": join('assets', 'img', 'bigShard.png'),
+        }
 
     def run(self):
         while self.running:
             delta_time = self.clock.tick(fps) / 1000 #define o fps do jogo e retorna o delta time em milisegundo, por isso divide por 1k
-            self.eventos() #avalia acoes do jogador (cima, baixo, saiu do jogo, etc...)
+            self.eventos()#avalia acoes do jogador (cima, baixo, saiu do jogo, etc...)
             self.update(delta_time) #movimentacao
-            self.draw() #desenha os sprites na tela
+            self.draw()#desenha os sprites na tela
     
     def eventos(self):
         for evento in pygame.event.get():
@@ -65,14 +71,12 @@ class Game:
                 if evento.type == pygame.KEYDOWN and evento.key == pygame.K_RETURN:
                     self.estado_do_jogo = "menu_principal"
 
-
     def update(self, delta_time):
         if self.estado_do_jogo == "jogando":
             self.all_sprites.update(delta_time)
             self.player.update(delta_time)
             self.inimigos_grupo.update(delta_time)
             self.projeteis_grupo.update(delta_time)
-
 
             self.tempo_proximo_spawn += delta_time
             
@@ -85,11 +89,11 @@ class Game:
             #o cronômetro já atingiu o tempo
             if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
                 self.tempo_proximo_spawn = 0 # zera o cronômetro para a próxima contagem
-                self.spawnar_inimigo()      #  cria o inimigo
+                self.spawnar_inimigo()#cria o inimigo
             
             #Deixa o jogo mais difícil com o tempo
             if self.intervalo_spawn_atual > self.intervalo_minimo:
-                # Diminui um pouquinho o tempo de espera a cada segundo que passa
+                 # Diminui um pouquinho o tempo de espera a cada segundo que passa
                 self.intervalo_spawn_atual -= self.fator_dificuldade * delta_time
 
             #CODIGO PARA TESTE, DEVE SER REMOVIDO DEPOIS
@@ -102,7 +106,7 @@ class Game:
                 self.estado_do_jogo = 'game_over'
 
     def draw(self):
-        #utiliza ifs para detectar estado do jogo e decidir o que vai desenhar
+          #utiliza ifs para detectar estado do jogo e decidir o que vai desenhar
         if self.estado_do_jogo == "menu_principal":
             self.menu_principal.draw(self.tela)
 
@@ -119,31 +123,28 @@ class Game:
         elif self.estado_do_jogo == "game_over":
             self.tela_game_over.draw(self.tela)
 
-        pygame.display.update() #pinta a tela
+        pygame.display.update()  #pinta a tela
     
     def iniciar_novo_jogo(self):
-        #limpa os grupos de sprites de um jogo anterior
         self.all_sprites.empty()
         self.item_group.empty()
         self.projeteis_grupo.empty()
         self.inimigos_grupo.empty()
 
         self.tempo_proximo_spawn = 0 #  SPAWN PARA UM NOVO JOGO
-        self.intervalo_spawn_inicial = 2.0  # Começa com um inimigo a cada 2s
+        self.intervalo_spawn_inicial = 2.0 # Começa com um inimigo a cada 2s
         self.intervalo_spawn_atual = self.intervalo_spawn_inicial
-        self.intervalo_minimo = 0.3         # Intervalo mais rápido possível
-        self.fator_dificuldade = 0.05       # Velocidade com que a dificuldade aumenta
+        self.intervalo_minimo = 0.3  # Intervalo mais rápido possível
+        self.fator_dificuldade = 0.05  # Velocidade com que a dificuldade aumenta
 
-        #instancia todos objetos iniciais para criálos no mapa
         self.player = Player(sheet_player=join('assets', 'img', 'player.png'), grupos=self.all_sprites)
 
                 
         #CÓDIGO DE TESTE, DEVE SER REMOVIDO DEPOIS
+                
         if not hasattr(self.player, 'armas'):
             self.player.armas = {}
 
-        #cria arma inicial e entrega ela ao jogador
-        #CODIGO PARA TESTES, DEVE SER RETIRADO DEPOIS
         arma_Loop = Arma_Loop(
             jogador=self.player,
             grupos=(self.all_sprites, self.projeteis_grupo, self.inimigos_grupo)
@@ -178,11 +179,26 @@ class Game:
         # Instância do tipo  sorteado
         inimigo_escolhido(posicao=pos, grupos=(self.all_sprites, self.inimigos_grupo), jogador=self.player)
 
-        
+    #lógica de drop aleatório
+    def _drop_item_aleatorio(self, pos):
+        """
+        Gera um item no chão com base em probabilidades simples.
+        """
+        r = random.randint(1, 100)
+        if 1 <= r <= 10:
+            # 10%: orb de vida
+            Items(posicao=pos, sheet_item=self.assets_itens["life_orb"],  tipo='life_orb',  grupos=(self.all_sprites, self.item_group))
+        elif 11 <= r <= 35:
+            # 25%: shard pequena de exp
+            Items(posicao=pos, sheet_item=self.assets_itens["exp_shard"], tipo='exp_shard', grupos=(self.all_sprites, self.item_group))
+        elif 36 <= r <= 40:
+            # 5%: shard grande
+            Items(posicao=pos, sheet_item=self.assets_itens["big_shard"], tipo='big_shard', grupos=(self.all_sprites, self.item_group))
+        # restante: sem drop
+
     def colisao(self):
         #coleta de itens
         colisao_player_items = pygame.sprite.spritecollide(self.player, self.item_group, dokill=True)
-        
         if colisao_player_items:
             for item in colisao_player_items:
                 if item.tipo in self.player.coletaveis:
@@ -199,7 +215,6 @@ class Game:
                         else:
                             self.player.vida_atual = self.player.vida_maxima
   
-
         #dano para o jogador em caso de colisão
         colisao_player_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)
         if colisao_player_inimigos != []:
@@ -209,18 +224,17 @@ class Game:
         colisao_inimigo_projetil =  pygame.sprite.groupcollide(self.projeteis_grupo, self.inimigos_grupo, False, False)
         for projetil in self.projeteis_grupo:
             inimigos_em_contato_agora = colisao_inimigo_projetil.get(projetil, [])
-            #converte para set
+             #converte para set
             set_inimigos_em_contato_agora = set(inimigos_em_contato_agora)
             #remove os inimigos que já foram acertados durante a colisão
             novos_acertos = set_inimigos_em_contato_agora - projetil.inimigos_atingidos
 
             for inimigo in novos_acertos:
                 inimigo.vida -= projetil.dano
-            
             #atualiza a memoria do projétil para quais inimigos estão em contato
             projetil.inimigos_atingidos = set_inimigos_em_contato_agora
 
-        #morte dos inimigos caso vida zere
-        for inimigo in self.inimigos_grupo:
+        #morte dos inimigos caso vida zere + DROP
+        for inimigo in list(self.inimigos_grupo):  #iterar sobre cópia
             if inimigo.vida <= 0:
                 inimigo.morrer((self.all_sprites, self.item_group))
