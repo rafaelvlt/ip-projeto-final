@@ -4,7 +4,6 @@ from settings import *
 from player import *
 from items import *
 from weapon import *
-from weapon import Arma_Loop
 from os.path import join
 from menu import *
 from hud import *
@@ -219,15 +218,17 @@ class Game:
                         if (self.player.experiencia_atual + 10) < self.player.experiencia_level_up:
                               self.player.experiencia_atual += 10
                         else:
-                            self.player.experiencia_atual = self.player.experiencia_atual - self.player.experiencia_level_up
+                            self.player.experiencia_atual = self.player.experiencia_atual + 10 - self.player.experiencia_level_up
                             self.estado_do_jogo = 'level_up'
+                            self.player.level_up()
                             self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
                     elif item.tipo == 'big_shard':
                         if (self.player.experiencia_atual + 50) < self.player.experiencia_level_up:
                               self.player.experiencia_atual += 50
                         else:
-                            self.player.experiencia_atual = self.player.experiencia_atual - self.player.experiencia_level_up
+                            self.player.experiencia_atual = self.player.experiencia_atual + 50 - self.player.experiencia_level_up
                             self.estado_do_jogo = 'level_up'
+                            self.player.level_up()
                             self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
                     elif item.tipo == 'life_orb':
                         if (self.player.vida_atual + 25) <= self.player.vida_maxima: 
@@ -235,11 +236,10 @@ class Game:
                         else:
                             self.player.vida_atual = self.player.vida_maxima
                     elif item.tipo == 'racket':
-                        self.cronometro_buff = pygame.time.get_ticks()
-                        self.buff = True
                         self.player.vida_atual = self.player.vida_maxima
                         self.player.experiencia_atual = self.player.experiencia_level_up
                         self.estado_do_jogo = 'level_up'
+                        self.player.level_up()
                         self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
                         
 
