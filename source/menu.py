@@ -1,6 +1,7 @@
 import pygame
 import json
 import os
+from settings import *
 
 # -----------------------------------------
 # Classe: SistemaSaveLoad
@@ -26,6 +27,7 @@ class MenuPrincipal:
     def __init__(self, game):
         self.game = game
         self.font = pygame.font.SysFont(None, 48)
+        self.bg = pygame.image.load(join('assets', 'img', 'CInMenu.jpeg'))
         self.opcoes = ["Start Game", "Ranking", "Colaboradores", "Sair"]
         self.selecionada = 0
 
@@ -40,7 +42,7 @@ class MenuPrincipal:
         return None
 
     def draw(self, tela):
-        tela.fill((30, 30, 30))
+        tela.blit(self.bg)
         for i, texto in enumerate(self.opcoes):
             cor = (255, 0, 0) if i == self.selecionada else (255, 255, 255)
             txt = self.font.render(texto, True, cor)

@@ -15,7 +15,7 @@ class InimigoBase(pygame.sprite.Sprite):
         self.velocidade = 100  # Velocidade do inimigo 
         self.jogador = jogador
         self.vida = 1
-        self.dano = 1
+        self.dano = 10
         # --- Parte Visual do Inimigo PADRÃO ---
         self.image = pygame.Surface((40, 40))
         self.image.fill('white')
@@ -59,4 +59,4 @@ class InimigoCirculo(InimigoBase):
         # Comportamento
         self.velocidade = 110
         self.vida = 1
-        self.dano = 1
+        self.dano = 10

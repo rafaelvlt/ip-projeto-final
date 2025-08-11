@@ -13,6 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.direcao = pygame.math.Vector2()
         self.velocidade = 500
         self.frame = pygame.image.load(sheet_player).convert_alpha()
+        self.frame = pygame.transform.scale(self.frame, (100, 100))
 
         #imagem e posicao
         self.image = self.frame
@@ -40,7 +41,7 @@ class Player(pygame.sprite.Sprite):
         #invencibilidade
         self.invencivel = False
         self.tempo_ultimo_dano = 0
-        self.duracao_invencibilidade = 200
+        self.duracao_invencibilidade = 100
 
         #ranking
         self.pontuacao = 0

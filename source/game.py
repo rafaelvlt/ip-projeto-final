@@ -32,12 +32,6 @@ class Game:
         self.inimigos_grupo = pygame.sprite.Group()
         self.projeteis_grupo = pygame.sprite.Group()
 
-        #assets dos itens para reaproveitar nos drops
-        self.assets_itens = {
-            "life_orb":  join('assets', 'img', 'lifeOrb.png'),
-            "exp_shard": join('assets', 'img', 'expShard.png'),
-            "big_shard": join('assets', 'img', 'bigShard.png'),
-        }
 
     def run(self):
         while self.running:
@@ -192,22 +186,6 @@ class Game:
         # Instância do tipo  sorteado
         inimigo_escolhido(posicao=pos, grupos=(self.all_sprites, self.inimigos_grupo), jogador=self.player)
 
-    #lógica de drop aleatório
-    def _drop_item_aleatorio(self, pos):
-        """
-        Gera um item no chão com base em probabilidades simples.
-        """
-        r = random.randint(1, 100)
-        if 1 <= r <= 10:
-            # 10%: orb de vida
-            Items(posicao=pos, sheet_item=self.assets_itens["life_orb"],  tipo='life_orb',  grupos=(self.all_sprites, self.item_group))
-        elif 11 <= r <= 35:
-            # 25%: shard pequena de exp
-            Items(posicao=pos, sheet_item=self.assets_itens["exp_shard"], tipo='exp_shard', grupos=(self.all_sprites, self.item_group))
-        elif 36 <= r <= 40:
-            # 5%: shard grande
-            Items(posicao=pos, sheet_item=self.assets_itens["big_shard"], tipo='big_shard', grupos=(self.all_sprites, self.item_group))
-        # restante: sem drop
 
     def colisao(self):
         #coleta de itens

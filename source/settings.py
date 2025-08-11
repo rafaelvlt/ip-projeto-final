@@ -4,8 +4,8 @@ from random import randint
 from abc import ABC, abstractmethod
 
 
-largura_tela = 1200
-altura_tela = 720
+largura_tela = 1280
+altura_tela = 960
 
 LARGURA_MAPA = 5000
 ALTURA_MAPA = 5000
