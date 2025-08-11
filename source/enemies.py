@@ -1,5 +1,9 @@
 import pygame
-import math 
+import math
+from items import *
+from random import randint
+
+
 
 class InimigoBase(pygame.sprite.Sprite):
     # 'posicao_x' e 'posicao_y' sao as coordenadas de onde ele vai aparecer.
@@ -12,7 +16,6 @@ class InimigoBase(pygame.sprite.Sprite):
         self.jogador = jogador
         self.vida = 1
         self.dano = 1
-
         # --- Parte Visual do Inimigo PADRÃO ---
         self.image = pygame.Surface((40, 40))
         self.image.fill('white')
@@ -21,7 +24,20 @@ class InimigoBase(pygame.sprite.Sprite):
         # --- Parte de Posição e Colisão ---
         self.posicao = pygame.math.Vector2(self.rect.center)
 
-
+    def morrer(self, grupos):
+        #drop
+        dado = randint(0, 1000)
+        #exp shard
+        if dado >= 0:
+            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'expShard.png'), tipo='exp_shard', grupos=grupos)
+        #life orb
+        elif dado >= 940:
+            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'lifeOrb.png'), tipo='life_orb',  grupos=grupos)
+        elif dado >= 990:
+            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
+        
+        self.kill()
+            
     def update(self, delta_time):
          # A lógica de seguir o jogador
         direcao = self.jogador.rect.center - self.posicao

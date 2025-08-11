@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.armas = {}
 
         #status
-        self.vida_maxima = 10
+        self.vida_maxima = 100
         self.vida_atual = self.vida_maxima
         
         #exp
@@ -67,7 +67,8 @@ class Player(pygame.sprite.Sprite):
     def level_up(self):
         self.experiencia_atual = self.experiencia_atual - self.experiencia_level_up
         self.experiencia_level_up *= 2 
-
+        self.vida_maxima += 25
+        self.vida_atual += 25
 
     def update(self, delta_time):
         self.input()

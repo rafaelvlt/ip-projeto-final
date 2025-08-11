@@ -136,9 +136,7 @@ class Game:
 
         #instancia todos objetos iniciais para criálos no mapa
         self.player = Player(sheet_player=join('assets', 'img', 'player.png'), grupos=self.all_sprites)
-        self.life_orb = Items(posicao=(300, 300), sheet_item=join('assets', 'img', 'lifeOrb.png'), tipo='life_orb',  grupos=(self.all_sprites, self.item_group))
-        self.expShard = Items(posicao=(700, 500), sheet_item=join('assets', 'img', 'expShard.png'), tipo='exp_shard', grupos=(self.all_sprites, self.item_group))
-        self.bigShard = Items(posicao=(200, 400), sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=(self.all_sprites, self.item_group))
+
                 
         #CÓDIGO DE TESTE, DEVE SER REMOVIDO DEPOIS
         if not hasattr(self.player, 'armas'):
@@ -189,8 +187,19 @@ class Game:
             for item in colisao_player_items:
                 if item.tipo in self.player.coletaveis:
                     self.player.coletaveis[item.tipo] += 1
+                    #efeitos
+                    if item.tipo == 'exp_shard':
+                        if (self.player.experiencia_atual + 25) < self.player.experiencia_level_up:
+                              self.player.experiencia_atual += 25
+                        else:
+                            self.player.level_up()
+                    elif item.tipo == 'life_orb':
+                        if (self.player.vida_atual + 25) <= self.player.vida_maxima: 
+                            self.player.vida_atual += 25
+                        else:
+                            self.player.vida_atual = self.player.vida_maxima
   
-  
+
         #dano para o jogador em caso de colisão
         colisao_player_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)
         if colisao_player_inimigos != []:
@@ -214,5 +223,4 @@ class Game:
         #morte dos inimigos caso vida zere
         for inimigo in self.inimigos_grupo:
             if inimigo.vida <= 0:
-                inimigo.kill()
-                    
+                inimigo.morrer((self.all_sprites, self.item_group))
