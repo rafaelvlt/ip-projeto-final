@@ -27,14 +27,15 @@ class InimigoBase(pygame.sprite.Sprite):
     def morrer(self, grupos):
         #drop
         dado = randint(0, 1000)
-        #exp shard
-        if dado >= 0:
-            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'expShard.png'), tipo='exp_shard', grupos=grupos)
+
+        if dado >= 990:
+            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
         #life orb
         elif dado >= 940:
             Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'lifeOrb.png'), tipo='life_orb',  grupos=grupos)
-        elif dado >= 990:
-            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
+                #exp shard
+        else:
+            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'expShard.png'), tipo='exp_shard', grupos=grupos)
         
         self.kill()
             

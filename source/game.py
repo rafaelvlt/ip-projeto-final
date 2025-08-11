@@ -10,6 +10,7 @@ from hud import *
 from enemies import InimigoBase, InimigoCirculo
 from grupos import AllSprites
 from ranking import Ranking 
+from levelup import *
 
 class Game:
     def __init__(self, tela):
@@ -25,6 +26,7 @@ class Game:
         self.menu_pausa = MenuPausa(self)
         self.tela_game_over = TelaGameOver(self)
         self.ranking = Ranking(self)
+        self.tela_de_upgrade_ativa = None
 
         #grupos de sprite
         self.all_sprites = AllSprites()
@@ -64,6 +66,18 @@ class Game:
                     self.estado_do_jogo = "jogando"
                 elif escolha == "Sair para Menu":
                     self.estado_do_jogo = "menu_principal"
+            elif self.estado_do_jogo == 'level_up':
+                if self.tela_de_upgrade_ativa:
+                    escolha_idx = self.tela_de_upgrade_ativa.handle_event(evento)
+                    
+                    if escolha_idx is not None:
+                        #pega a arma escolhida a partir do índice
+                        arma_escolhida = self.tela_de_upgrade_ativa.opcoes_de_armas[escolha_idx]
+                        arma_escolhida.upgrade()
+                        
+                        self.estado_do_jogo = 'jogando' # Volta para o jogo
+                        self.tela_de_upgrade_ativa = None # Limpa a tela de upgrade
+
             
             elif self.estado_do_jogo == 'ranking':
                 action = self.ranking.handle_event(evento)
@@ -78,9 +92,6 @@ class Game:
     def update(self, delta_time):
         if self.estado_do_jogo == "jogando":
             self.all_sprites.update(delta_time)
-            self.player.update(delta_time)
-            self.inimigos_grupo.update(delta_time)
-            self.projeteis_grupo.update(delta_time)
 
             self.tempo_proximo_spawn += delta_time
             
@@ -129,6 +140,11 @@ class Game:
 
         elif self.estado_do_jogo == "game_over":
             self.tela_game_over.draw(self.tela)
+        
+        elif self.estado_do_jogo == "level_up":
+            self.all_sprites.draw(self.player.posicao)
+            self.hud.draw(self.tela)
+            self.tela_de_upgrade_ativa.draw(self.tela)
 
         pygame.display.update()  #pinta a tela
     
@@ -196,10 +212,12 @@ class Game:
                     self.player.coletaveis[item.tipo] += 1
                     #efeitos
                     if item.tipo == 'exp_shard':
-                        if (self.player.experiencia_atual + 25) < self.player.experiencia_level_up:
-                              self.player.experiencia_atual += 25
+                        if (self.player.experiencia_atual + 10) < self.player.experiencia_level_up:
+                              self.player.experiencia_atual += 10
                         else:
-                            self.player.level_up()
+                            self.player.experiencia_atual = self.player.experiencia_atual - self.player.experiencia_level_up
+                            self.estado_do_jogo = 'level_up'
+                            self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
                     elif item.tipo == 'life_orb':
                         if (self.player.vida_atual + 25) <= self.player.vida_maxima: 
                             self.player.vida_atual += 25

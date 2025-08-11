@@ -6,9 +6,15 @@ from game import *
 class Arma(ABC):
     def __init__(self, jogador):
         self.jogador = jogador
-        self.nivel = 1
+        #status
+        self.nivel = 0
+        self.dano = 0
+        self.velocidade = 0
         self.cooldown = 0
         self.ultimo_tiro = 0
+        #texto
+        self.nome = ""
+        self.descricao = ""
 
     
     @abstractmethod
@@ -23,6 +29,14 @@ class Arma(ABC):
     
     def upgrade(self):
         self.nivel += 1 
+    
+    @abstractmethod
+    def ver_proximo_upgrade(self):
+        pass
+
+    @abstractmethod
+    def get_estatisticas_para_exibir(self):
+        pass
 
 class Arma_Loop(Arma):
     def __init__(self, jogador, grupos):
@@ -40,10 +54,14 @@ class Arma_Loop(Arma):
         self.grupo_inimigos = grupos[2]
 
         #específicos da arma
+        self.nivel = 1
         self.dano = 1
         self.velocidade = 1500
         self.cooldown = 1500
         self.rebatidas = 2
+        self.nome = "Bolinha Calderânica"
+        self.descricao = """Os projeteis são capazes
+de rebater nas paredes!"""
         
 
     def disparar(self):
@@ -78,12 +96,40 @@ class Arma_Loop(Arma):
 
     def upgrade(self):
         super().upgrade()
-        #a cada 5 niveis ganha um projétil a mais
+        #a cada 3 niveis fica mais rapido
+
         self.rebatidas += 1
         self.dano += 1
+        if self.nivel % 3 == 0 and self.cooldown > 250:
+            self.cooldown -= 250
 
+    def ver_proximo_upgrade(self):
+        prox_nivel = self.nivel + 1
+        prox_dano = self.dano + 1
+        prox_rebatidas = self.rebatidas + 1
+        if prox_nivel % 3 == 0 and self.cooldown > 250:
+            prox_cooldown = (self.cooldown - 250)
+        else:
+            prox_cooldown = self.cooldown
 
+        return {
+            'nivel': prox_nivel,
+            'dano': prox_dano,
+            'rebatidas': prox_rebatidas,
+            'cooldown': prox_cooldown
+        }
+    def get_estatisticas_para_exibir(self):
+        stats_futuros = self.ver_proximo_upgrade()
+        cadencia_atual = 1000 / self.cooldown
+        cadencia_futura = 1000 / stats_futuros['cooldown']
 
+        stats_formatados = [
+            f"Dano: {self.dano} -> {stats_futuros['dano']}",
+            f"Rebotes: {self.rebatidas} -> {stats_futuros['rebatidas']}",
+            f"Cadência: {cadencia_atual:.2f}/s -> {cadencia_futura:.2f}/s"
+        ]
+
+        return stats_formatados
 class Projetil(pygame.sprite.Sprite):
     def __init__(self, surface, jogador, velocidade, direcao, dano, grupo_sprites):
         #classe projétil multipropósito, capaz de receber velocidade e imagem diferente dependendo do tipo de arma
