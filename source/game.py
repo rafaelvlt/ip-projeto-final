@@ -4,6 +4,7 @@ from settings import *
 from player import *
 from items import *
 from weapon import *
+from weapon import Arma_Loop
 from os.path import join
 from menu import *
 from hud import *
@@ -33,6 +34,8 @@ class Game:
         self.item_group = pygame.sprite.Group()
         self.inimigos_grupo = pygame.sprite.Group()
         self.projeteis_grupo = pygame.sprite.Group()
+        #buff
+        self.buff = False
 
 
     def run(self):
@@ -170,7 +173,8 @@ class Game:
 
         arma_Loop = Arma_Loop(
             jogador=self.player,
-            grupos=(self.all_sprites, self.projeteis_grupo, self.inimigos_grupo)
+            grupos=(self.all_sprites, self.projeteis_grupo, self.inimigos_grupo),
+            game=self
         )
         self.player.armas['Laço'] = arma_Loop
 
@@ -230,6 +234,17 @@ class Game:
                             self.player.vida_atual += 25
                         else:
                             self.player.vida_atual = self.player.vida_maxima
+                    elif item.tipo == 'racket':
+                        self.cronometro_buff = pygame.time.get_ticks()
+                        self.buff = True
+                        self.player.vida_atual = self.player.vida_maxima
+                        self.player.experiencia_atual = self.player.experiencia_level_up
+                        self.estado_do_jogo = 'level_up'
+                        self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
+                        
+
+                        
+
   
         #dano para o jogador em caso de colisão
         colisao_player_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)

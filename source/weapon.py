@@ -39,10 +39,11 @@ class Arma(ABC):
         pass
 
 class Arma_Loop(Arma):
-    def __init__(self, jogador, grupos):
+    def __init__(self, jogador, grupos, game):
         #grupos index: 0 = all_sprites, 1= grupo_projeteis 2= grupo_inimigos
         #variáveis padrões
         super().__init__(jogador=jogador)
+        self.game = game
         #imagem
         self.surface_pinpong = pygame.image.load(join('assets', 'img', 'bola_pingpong.png'))
         novo_tamanho = (80, 80)
@@ -59,16 +60,22 @@ class Arma_Loop(Arma):
         self.velocidade = 1500
         self.cooldown = 1500
         self.rebatidas = 2
+        self.cronometro_buff = 0
         self.nome = "Bolinha Calderânica"
         self.descricao = """Os projeteis são capazes
 de rebater nas paredes!"""
         
 
     def disparar(self):
+        
         #detecta o inimigo mais próximo
         #se não houver inimigos, não atira
         if not self.grupo_inimigos:
             return
+        if self.game.buff == True:
+            if self.cronometro_buff > 30000:
+                self.cooldown *= 2
+                self.game.buff = False
         
         inimigo_mais_proximo = self.grupo_inimigos.sprites()[0]
         menor_distancia = self.jogador.posicao.distance_to(inimigo_mais_proximo.posicao)
