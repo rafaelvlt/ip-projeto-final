@@ -29,13 +29,13 @@ class Player(pygame.sprite.Sprite):
         
         #exp
         self.experiencia_level_up_base = 100 
-        self.experiencia_level_up = self.experiencia_level_up_base
+        self.experiencia_level_up = self.experiencia_level_up_base 
         self.experiencia_atual = 0
 
         self.coletaveis = {
             "exp_shard": 0,
             "life_orb": 0,
-            "big_shard":0
+            "big_shard": 0
         }
 
         #invencibilidade
@@ -69,6 +69,7 @@ class Player(pygame.sprite.Sprite):
             self.tempo_ultimo_dano = pygame.time.get_ticks()
 
     def level_up(self):
+        self.contador_de_niveis += 1
         self.experiencia_atual = self.experiencia_atual - self.experiencia_level_up
         self.experiencia_level_up *= 2 
         self.vida_maxima += 25

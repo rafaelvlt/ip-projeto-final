@@ -218,6 +218,13 @@ class Game:
                             self.player.experiencia_atual = self.player.experiencia_atual - self.player.experiencia_level_up
                             self.estado_do_jogo = 'level_up'
                             self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
+                    elif item.tipo == 'big_shard':
+                        if (self.player.experiencia_atual + 50) < self.player.experiencia_level_up:
+                              self.player.experiencia_atual += 50
+                        else:
+                            self.player.experiencia_atual = self.player.experiencia_atual - self.player.experiencia_level_up
+                            self.estado_do_jogo = 'level_up'
+                            self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
                     elif item.tipo == 'life_orb':
                         if (self.player.vida_atual + 25) <= self.player.vida_maxima: 
                             self.player.vida_atual += 25

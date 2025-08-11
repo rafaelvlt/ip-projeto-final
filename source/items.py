@@ -12,8 +12,8 @@ class Items(pygame.sprite.Sprite):
 
         #drop
         self.direcao = pygame.math.Vector2(0, 1)
-        self.velocidade = -5
-        self.gravidade = 0.4
+        self.velocidade = -100
+        self.gravidade = 8
         self.dropping = True
 
         #imagem
