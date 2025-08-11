@@ -41,6 +41,9 @@ class Player(pygame.sprite.Sprite):
         self.invencivel = False
         self.tempo_ultimo_dano = 0
         self.duracao_invencibilidade = 200
+
+        #ranking
+        self.pontuacao = 0
     def input(self):
         #muda os vetores se eles estão sendo pressionados ou não
         #direita = 1, esquerda = -1, cima = 1, baixo = -1
@@ -69,10 +72,12 @@ class Player(pygame.sprite.Sprite):
         self.experiencia_level_up *= 2 
         self.vida_maxima += 25
         self.vida_atual += 25
+        self.pontuacao += 100
 
     def update(self, delta_time):
         self.input()
         self.movimentacao(delta_time)
+        self.pontuacao = self.experiencia_atual
         if self.invencivel:
             agora = pygame.time.get_ticks()
             if agora - self.tempo_ultimo_dano > self.duracao_invencibilidade:
@@ -86,6 +91,8 @@ class Player(pygame.sprite.Sprite):
             
         if self.experiencia_atual >= self.experiencia_level_up:
             self.level_up()
+
+
 
 
 

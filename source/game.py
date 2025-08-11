@@ -9,6 +9,7 @@ from menu import *
 from hud import *
 from enemies import InimigoBase, InimigoCirculo
 from grupos import AllSprites
+from ranking import Ranking 
 
 class Game:
     def __init__(self, tela):
@@ -23,6 +24,7 @@ class Game:
         self.menu_principal = MenuPrincipal(self)
         self.menu_pausa = MenuPausa(self)
         self.tela_game_over = TelaGameOver(self)
+        self.ranking = Ranking(self)
 
         #grupos de sprite
         self.all_sprites = AllSprites()
@@ -54,6 +56,8 @@ class Game:
                 escolha = self.menu_principal.handle_event(evento)
                 if escolha == 'Start Game':
                     self.iniciar_novo_jogo()
+                if escolha == 'Ranking':
+                    self.estado_do_jogo = 'ranking'
                 if escolha == 'Sair':
                     self.running = False
             elif self.estado_do_jogo == "jogando":
@@ -67,9 +71,15 @@ class Game:
                 elif escolha == "Sair para Menu":
                     self.estado_do_jogo = "menu_principal"
             
+            elif self.estado_do_jogo == 'ranking':
+                action = self.ranking.handle_event(evento)
+                if action == 'exit_to_menu':
+                    self.estado_do_jogo = 'menu_principal'
+            
             elif self.estado_do_jogo == "game_over":
                 if evento.type == pygame.KEYDOWN and evento.key == pygame.K_RETURN:
-                    self.estado_do_jogo = "menu_principal"
+                    self.ranking.start_name_input(self.player.pontuacao)
+                    self.estado_do_jogo = "ranking"
 
     def update(self, delta_time):
         if self.estado_do_jogo == "jogando":
@@ -119,6 +129,9 @@ class Game:
             self.tela.fill(cores["preto"])
             self.all_sprites.draw(self.player.rect.center)
             self.menu_pausa.draw(self.tela)
+
+        elif self.estado_do_jogo == 'ranking':
+            self.ranking.draw(self.tela)
 
         elif self.estado_do_jogo == "game_over":
             self.tela_game_over.draw(self.tela)
