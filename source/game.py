@@ -37,7 +37,7 @@ class Game:
         #buff
         self.buff = False
         #mapa
-        self.mapa = Mapa(join('assets', 'map', 'mapa_cin.tmx'))
+        #self.mapa = Mapa(join('assets', 'map', 'mapa_cin.tmx'))
 
     def run(self):
         while self.running:
@@ -139,7 +139,7 @@ class Game:
             self.hud.draw(self.tela)
 
         elif self.estado_do_jogo == 'pausa':
-            self.tela.fill('green')
+            self.tela.fill('black')
             self.all_sprites.draw(self.player.posicao)
             self.menu_pausa.draw(self.tela)
 
@@ -168,7 +168,7 @@ class Game:
         self.intervalo_minimo = 0.3
         self.fator_dificuldade = 0.05
 
-        Mapa(self.all_sprites)
+        #Mapa(self.all_sprites)
         self.player = Player(
             sheet_player=join('assets', 'img', 'player.png'),
             grupos=self.all_sprites
@@ -191,7 +191,13 @@ class Game:
             grupos=(self.all_sprites, self.projeteis_grupo, self.inimigos_grupo),
             game=self
         )
+
+        arma_listas = ArmaLista(jogador=self.player,
+                                grupos=(self.all_sprites, self.projeteis_grupo),
+                                game=self)
+                        
         self.player.armas['Laço'] = arma_Loop
+        self.player.armas['Listas'] = arma_listas
 
         self.estado_do_jogo = 'jogando'
     
