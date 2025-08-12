@@ -60,8 +60,7 @@ class Arma_Loop(Arma):
         self.cooldown = 1500
         self.rebatidas = 2
         self.nome = "Bolinha Calderânica"
-        self.descricao = """Os projeteis são capazes
-de rebater nas paredes!"""
+        self.descricao = """Os projeteis são capazes\nde rebater nas paredes!"""
         
 
     def disparar(self):
