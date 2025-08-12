@@ -1,6 +1,12 @@
 import pygame
 from settings import *
 
+class Fundo(pygame.sprite.Sprite):
+    def __init__(self, posicao, surface, grupos):
+        super().__init__(grupos)
+        self.image = surface
+        self.rect = self.image.get_rect(topleft = posicao)
+
 class AllSprites(pygame.sprite.Group):
     def __init__(self):
         super().__init__()

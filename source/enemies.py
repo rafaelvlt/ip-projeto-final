@@ -3,7 +3,7 @@ import math
 from items import *
 from random import randint
 from player import Player
-
+from settings import *
 
 
 class InimigoBase(pygame.sprite.Sprite):
@@ -49,30 +49,89 @@ class InimigoBase(pygame.sprite.Sprite):
         self.posicao += direcao * self.velocidade * delta_time
         self.rect.center = self.posicao
 
-class InimigoCirculo(InimigoBase):
+class InimigoBug(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
         super().__init__(posicao, grupos, jogador)
         
-        # --- Parte Visual do Inimigo CIRCULO ---
-        self.image = pygame.Surface((30, 30), pygame.SRCALPHA) 
-        pygame.draw.circle(self.image, 'cyan', (15, 15), 15)
-
-        self.rect = self.image.get_rect(center=self.posicao)
+        # --- Parte Visual do Inimigo bug ---
+        spritesheet = pygame.image.load(join('assets', 'img', 'bug.png'))
+        self.animacoes = self.fatiar_spritesheet(spritesheet)
+        self.estado_animacao = 'down'
+        self.frame_atual = 0
+        self.velocidade_animacao = 150
+        self.ultimo_update_animacao = pygame.time.get_ticks()
+        
+        self.image = self.animacoes[self.estado_animacao][self.frame_atual]
+        self.rect = self.image.get_rect(center = posicao)
         
         # Comportamento
         self.velocidade = 110
         self.vida = 1
         self.dano = 10
+    def fatiar_spritesheet(self, sheet):
 
+        largura_frame = 32 # 128px / 4 frames
+        altura_frame = 32  # 128px / 4 frames
+        
+        animacoes = {
+            'up': [],
+            'left': [],
+            'right': [],
+            'down': [],
+        }
+
+        for linha, nome_animacao in enumerate(['down', 'left', 'right', 'up']):
+            for coluna in range(4): # 4 frames por animação
+                x = coluna * largura_frame
+                y = linha * altura_frame
+                #usa .subsurface() para recortar o frame
+                frame = sheet.subsurface(pygame.Rect(x, y, largura_frame, altura_frame))
+                novo_tamanho = (100, 100)
+                frame_escalado =  pygame.transform.scale(frame, novo_tamanho)
+
+                animacoes[nome_animacao].append(frame_escalado)
+        return animacoes
+    def animar(self):
+        agora = pygame.time.get_ticks()
+        
+        if agora - self.ultimo_update_animacao > self.velocidade_animacao:
+            self.ultimo_update_animacao = agora # Reseta o timer
+            
+            #avança para o próximo frame da animação atual
+            self.frame_atual = (self.frame_atual + 1) % len(self.animacoes[self.estado_animacao])
+            
+            #atualiza a imagem do sprite para o novo frame
+            self.image = self.animacoes[self.estado_animacao][self.frame_atual]
+            self.rect = self.image.get_rect(center = self.rect.center)
+
+    def update(self, delta_time):
+        direcao = (self.jogador.posicao - self.posicao).normalize() if (self.jogador.posicao - self.posicao).length() > 0 else pygame.math.Vector2()
+        self.posicao += direcao * self.velocidade * delta_time
+        self.rect.center = (round(self.posicao.x), round(self.posicao.y))
+        
+
+        if abs(direcao.y) > abs(direcao.x):
+            if direcao.y < 0:
+                self.estado_animacao = 'up'
+            else:
+                self.estado_animacao = 'down'
+        elif abs(direcao.x) > 0:
+            if direcao.x < 0:
+                self.estado_animacao = 'left'
+            else:
+                self.estado_animacao = 'right'
+
+        self.animar()
 class InimigoListaIP(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
         super().__init__(posicao, grupos, jogador)
 
         # Carrega a imagem do inimigo
         self.image = pygame.image.load(join('assets', 'img', 'inimigo_listaIP.png')).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect = self.image.get_rect(center=self.posicao)
 
-        # Ajuste os atributos se quiser, exemplo:
+        
         self.velocidade = 90
         self.vida = 2
         self.dano = 15

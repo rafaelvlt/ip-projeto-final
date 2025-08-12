@@ -8,10 +8,11 @@ from weapon import *
 from os.path import join
 from menu import *
 from hud import *
-from enemies import InimigoBase, InimigoCirculo, InimigoListaIP
+from enemies import InimigoBase, InimigoBug, InimigoListaIP
 from grupos import AllSprites
 from ranking import Ranking 
 from levelup import *
+from mapa import *
 
 class Game:
     def __init__(self, tela):
@@ -19,14 +20,6 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.hud = HUD(self)
-        
-
-        # Carregue a imagem do mapa aqui:
-        #self.tmx_data = pytmx.load_pygame('assets', 'img', 'mapa.tmx')
-        #largura_mapa_pixels = self.tmx_data.width * self.tmx_data.tilewidth
-        #altura_mapa_pixels = self.tmx_data.height * self.tmx_data.tileheight
-        #self.mapa_surface = pygame.Surface((largura_mapa_pixels, altura_mapa_pixels))
-
         
         #máquina de estado
         self.estado_do_jogo = "menu_principal"
@@ -43,7 +36,8 @@ class Game:
         self.projeteis_grupo = pygame.sprite.Group()
         #buff
         self.buff = False
-
+        #mapa
+        self.mapa = Mapa(join('assets', 'map', 'mapa_cin.tmx'))
 
     def run(self):
         while self.running:
@@ -136,12 +130,16 @@ class Game:
             self.menu_principal.draw(self.tela)
 
         elif self.estado_do_jogo == 'jogando':
+            #desenha mapa
             self.tela.fill('black')
+            #deslocamento = self.all_sprites.deslocamento
+            #self.mapa.draw(self.tela, deslocamento)
+
             self.all_sprites.draw(self.player.posicao)
             self.hud.draw(self.tela)
 
         elif self.estado_do_jogo == 'pausa':
-            self.tela.fill('black')
+            self.tela.fill('green')
             self.all_sprites.draw(self.player.posicao)
             self.menu_pausa.draw(self.tela)
 
@@ -170,6 +168,7 @@ class Game:
         self.intervalo_minimo = 0.3
         self.fator_dificuldade = 0.05
 
+        Mapa(self.all_sprites)
         self.player = Player(
             sheet_player=join('assets', 'img', 'player.png'),
             grupos=self.all_sprites
@@ -216,7 +215,7 @@ class Game:
             pos = (borda_direita + 50, random.uniform(borda_topo, borda_baixo))
         
         # tipos de inimigos que podem aparecer
-        tipos_de_inimigos_possiveis = [InimigoBase, InimigoCirculo, InimigoListaIP]
+        tipos_de_inimigos_possiveis = [InimigoBug, InimigoListaIP]
 
         # sorteia um tipo de inimigo aleatoriamente
         inimigo_escolhido = random.choice(tipos_de_inimigos_possiveis)
