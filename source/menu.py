@@ -20,9 +20,9 @@ from settings import *
 #               return json.load(f)
 #       return {}
 
-# -----------------------------------------
-# Classe: MenuPrincipal
-# -----------------------------------------
+import pygame
+from os.path import join
+
 class MenuPrincipal:
     def __init__(self, game):
         self.game = game
@@ -31,6 +31,15 @@ class MenuPrincipal:
         self.opcoes = ["Start Game", "Ranking", "Colaboradores", "Sair"]
         self.selecionada = 0
 
+        # Inicializa o mixer se ainda não estiver
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+
+        # Carrega e toca a música de fundo
+        self.musica = join('assets', 'sounds', 'musica_menu.ogg')
+        pygame.mixer.music.load(self.musica)
+        pygame.mixer.music.play(-1)  # -1 para loop infinito
+
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
@@ -38,6 +47,8 @@ class MenuPrincipal:
             elif event.key == pygame.K_s:
                 self.selecionada = (self.selecionada + 1) % len(self.opcoes)
             elif event.key == pygame.K_RETURN:
+                # Opcional: pare a música ao sair do menu
+                pygame.mixer.music.stop()
                 return self.opcoes[self.selecionada]
         return None
 
@@ -47,6 +58,7 @@ class MenuPrincipal:
             cor = (255, 0, 0) if i == self.selecionada else (255, 255, 255)
             txt = self.font.render(texto, True, cor)
             tela.blit(txt, (100, 100 + i * 60))
+
 
 # -----------------------------------------
 # Classe: MenuPausa
