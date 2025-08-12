@@ -2,6 +2,7 @@ import pygame
 import math
 from items import *
 from random import randint
+from player import Player
 
 
 
@@ -27,11 +28,12 @@ class InimigoBase(pygame.sprite.Sprite):
     def morrer(self, grupos):
         #drop
         dado = randint(0, 1000)
-
-        if dado >= 990:
+        if dado == 1000:
+            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'racket.png'), tipo='racket', grupos=grupos)
+        elif dado >= 990:
             Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
         #life orb
-        elif dado >= 940:
+        elif dado >= 970:
             Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'lifeOrb.png'), tipo='life_orb',  grupos=grupos)
                 #exp shard
         else:

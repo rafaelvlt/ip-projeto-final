@@ -42,7 +42,10 @@ class MenuPrincipal:
         return None
 
     def draw(self, tela):
+<<<<<<< HEAD
         tela.blit(self.bg, (0,0))
+=======
+>>>>>>> 1e9b382dc3725cd58ee92bd1012090a0252c9c5c
         tela.blit(self.bg, (0, 0))
         for i, texto in enumerate(self.opcoes):
             cor = (255, 0, 0) if i == self.selecionada else (255, 255, 255)
