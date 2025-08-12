@@ -137,7 +137,9 @@ class Game:
 
             self.all_sprites.draw(self.player.posicao)
             self.hud.draw(self.tela)
-
+            if self.player:
+                for arma in self.player.armas.values():
+                    arma.update()
         elif self.estado_do_jogo == 'pausa':
             self.tela.fill('black')
             self.all_sprites.draw(self.player.posicao)

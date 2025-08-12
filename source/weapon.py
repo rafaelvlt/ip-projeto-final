@@ -1,4 +1,5 @@
 import pygame
+import math
 from settings import *
 from player import *
 from game import *
@@ -136,6 +137,87 @@ class Arma_Loop(Arma):
         ]
 
         return stats_formatados
+    
+class ArmaLista(Arma):
+    def __init__(self, jogador, grupos, game):
+        super().__init__(jogador=jogador)
+        self.game = game
+
+        #imagem
+        self.surface_listas = pygame.image.load(join('assets', 'img', 'listas.png')).convert_alpha()
+        novo_tamanho = (60, 60)
+        self.surface_listas = pygame.transform.scale(self.surface_listas, novo_tamanho)
+
+        #grupos
+        self.all_sprites = grupos[0]
+        self.projeteis_grupo = grupos[1]
+
+        #específicos da arma
+        self.nome = "Escudo de Listas"
+        self.descricao = "Protege o jogador!"
+        self.nivel = 1
+        self.num_listas = 1
+        self.dano = 15
+        self.velocidade = 0
+        self.cooldown = 5000
+        self.duracao = 4000
+        self.distancia_orbita = 100
+        self.velocidade_rotacao = 90
+        
+
+    def disparar(self):
+        #para o angulo ficar igualmente espaçado 
+        angulo_step = 360 / self.num_listas
+        for i in range(self.num_listas):
+            angulo = i * angulo_step
+            Projetil_Lista(
+                surface=self.surface_listas, 
+                jogador=self.jogador,
+                velocidade=0,
+                direcao=(0,0),
+                dano=self.dano,
+                grupos=(self.all_sprites, self.projeteis_grupo),
+                angulo_inicial=angulo,
+                distancia_orbita=self.distancia_orbita,
+                velocidade_rotacao=self.velocidade_rotacao,
+                duracao=self.duracao
+            )
+    def upgrade(self):
+        super().upgrade()
+        #a cada 3 niveis fica mais rapido
+
+        self.velocidade_rotacao += 5
+        self.dano += 5
+        if self.nivel % 3 == 0:
+            self.num_listas += 1
+
+    def ver_proximo_upgrade(self):
+        prox_nivel = self.nivel + 1
+        prox_dano = self.dano + 5
+        prox_velocidade_rotacao = self.velocidade_rotacao + 5
+        if prox_nivel % 3 == 0:
+            prox_listas = self.num_listas + 1
+        else:
+            prox_listas = self.num_listas
+
+        return {
+            'nivel': prox_nivel,
+            'dano': prox_dano,
+            'velocidade_rotacao': prox_velocidade_rotacao,
+            'num_listas': prox_listas
+        }
+    def get_estatisticas_para_exibir(self):
+        stats_futuros = self.ver_proximo_upgrade()
+
+        stats_formatados = [
+            f"Dano: {self.dano} -> {stats_futuros['dano']}",
+            f"Velocidade Angular: {stats_futuros['velocidade_rotacao']}°/s-> {stats_futuros['velocidade_rotacao']}°/s",
+            f"Num. Listas: {stats_futuros['num_listas']} -> {stats_futuros['num_listas']}"
+        ]
+
+        return stats_formatados
+
+
 class Projetil(pygame.sprite.Sprite):
     def __init__(self, surface, jogador, velocidade, direcao, dano, grupo_sprites):
         #classe projétil multipropósito, capaz de receber velocidade e imagem diferente dependendo do tipo de arma
@@ -203,4 +285,34 @@ class Projetil_PingPong(Projetil):
             self.rebatidas -= 1
 
         if self.rebatidas <= 0:
+            self.kill()
+
+class Projetil_Lista(Projetil):
+    def __init__(self, surface, jogador, velocidade, direcao, dano, grupos, angulo_inicial, distancia_orbita, velocidade_rotacao, duracao):
+        super().__init__(surface, jogador, velocidade, direcao, dano, grupos)
+        #atributos
+        self.jogador = jogador
+        self.angulo = angulo_inicial  #posição angular inicial no círculo
+        self.distancia_orbita = distancia_orbita
+        self.velocidade_rotacao = velocidade_rotacao #graus por segundo
+        self.tempo_criacao = pygame.time.get_ticks()
+        self.duracao = duracao
+
+        #colisao
+        self.inimigos_atingidos = set()
+        
+    def update(self, delta_time):
+        #atualiza o angulo
+        self.angulo += self.velocidade_rotacao * delta_time
+        
+        # calcula novo x e y com base em trigo
+        deslocamento_x = math.cos(math.radians(self.angulo)) * self.distancia_orbita
+        deslocamento_y = math.sin(math.radians(self.angulo)) * self.distancia_orbita
+        
+        #posição do projétil é a posição do jogador + o deslocamento da órbita
+        self.posicao = self.jogador.posicao + pygame.math.Vector2(deslocamento_x, deslocamento_y)
+        self.rect.center = (round(self.posicao.x), round(self.posicao.y))
+
+        # verifica se acabou a duração
+        if pygame.time.get_ticks() - self.tempo_criacao > self.duracao:
             self.kill()
