@@ -211,7 +211,7 @@ class ArmaLista(Arma):
 
         stats_formatados = [
             f"Dano: {self.dano} -> {stats_futuros['dano']}",
-            f"Velocidade Angular: {stats_futuros['velocidade_rotacao']}°/s-> {stats_futuros['velocidade_rotacao']}°/s",
+            f"Velocidade Angular: {self.velocidade_rotacao}°/s-> {stats_futuros['velocidade_rotacao']}°/s",
             f"Num. Listas: {stats_futuros['num_listas']} -> {stats_futuros['num_listas']}"
         ]
 
