@@ -8,7 +8,7 @@ from weapon import *
 from os.path import join
 from menu import *
 from hud import *
-from enemies import InimigoBase, InimigoCirculo
+from enemies import InimigoBase, InimigoCirculo, InimigoListaIP
 from grupos import AllSprites
 from ranking import Ranking 
 from levelup import *
@@ -216,7 +216,8 @@ class Game:
             pos = (borda_direita + 50, random.uniform(borda_topo, borda_baixo))
         
         # tipos de inimigos que podem aparecer
-        tipos_de_inimigos_possiveis = [InimigoBase, InimigoCirculo]
+        tipos_de_inimigos_possiveis = [InimigoBase, InimigoCirculo, InimigoListaIP]
+
         # sorteia um tipo de inimigo aleatoriamente
         inimigo_escolhido = random.choice(tipos_de_inimigos_possiveis)
         # Instância do tipo  sorteado

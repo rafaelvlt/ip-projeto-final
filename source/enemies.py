@@ -63,3 +63,16 @@ class InimigoCirculo(InimigoBase):
         self.velocidade = 110
         self.vida = 1
         self.dano = 10
+
+class InimigoListaIP(InimigoBase):
+    def __init__(self, posicao, grupos, jogador):
+        super().__init__(posicao, grupos, jogador)
+
+        # Carrega a imagem do inimigo
+        self.image = pygame.image.load(join('assets', 'img', 'inimigo_listaIP.png')).convert_alpha()
+        self.rect = self.image.get_rect(center=self.posicao)
+
+        # Ajuste os atributos se quiser, exemplo:
+        self.velocidade = 90
+        self.vida = 2
+        self.dano = 15
