@@ -1,11 +1,18 @@
-from settings import *  # importa largura_tela e altura_tela
-import os
 import pygame
+from os.path import join
+from random import randint
+from abc import ABC, abstractmethod
 
-class TelaGameOver:
-    def __init__(self, game):
-        self.bg = pygame.image.load(os.path.join('assets', 'img', 'game_over.png')).convert_alpha()
-        self.bg = pygame.transform.scale(self.bg, (largura_tela, altura_tela))
 
-    def draw(self, tela):
-        tela.blit(self.bg, (0, 0))
+largura_tela = 1280
+altura_tela = 960
+
+LARGURA_MAPA = 5000
+ALTURA_MAPA = 5000
+
+fps = 60
+cores = {
+    "preto": (0,0,0),
+    "branco": (255,255,255),
+    "verde": (0,255,50)
+}

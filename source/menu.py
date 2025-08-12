@@ -42,10 +42,6 @@ class MenuPrincipal:
         return None
 
     def draw(self, tela):
-<<<<<<< HEAD
-        tela.blit(self.bg, (0,0))
-=======
->>>>>>> 1e9b382dc3725cd58ee92bd1012090a0252c9c5c
         tela.blit(self.bg, (0, 0))
         for i, texto in enumerate(self.opcoes):
             cor = (255, 0, 0) if i == self.selecionada else (255, 255, 255)
@@ -93,18 +89,18 @@ class TelaGameOver:
         self.bg = pygame.transform.scale(self.bg, (largura_tela, altura_tela))
 
         # Inicializa mixer (só faz isso se ainda não foi inicializado)
-        if not pygame.mixer.get_init():
-            pygame.mixer.init()
+        #if not pygame.mixer.get_init():
+            #pygame.mixer.init()
 
         # Carrega som
-        self.som = pygame.mixer.Sound(os.path.join('assets', 'sounds', 'game_over.wav'))
+        #self.som = pygame.mixer.Sound(os.path.join('assets', 'sounds', 'game_over.wav'))
 
-        self.som_tocado = False  # flag para tocar só uma vez
+        #self.som_tocado = False  # flag para tocar só uma vez
 
     def draw(self, tela):
-        if not self.som_tocado:
-            self.som.play()
-            self.som_tocado = True
+        #if not self.som_tocado:
+            #self.som.play()
+            #self.som_tocado = True
 
         tela.blit(self.bg, (0, 0))
 

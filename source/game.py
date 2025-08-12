@@ -1,4 +1,5 @@
 import pygame
+import pytmx
 import random
 from settings import *
 from player import *
@@ -14,17 +15,18 @@ from levelup import *
 
 class Game:
     def __init__(self, tela):
-    self.tela = tela
-    self.clock = pygame.time.Clock()
-    self.running = True
-    self.hud = HUD(self)
+        self.tela = tela
+        self.clock = pygame.time.Clock()
+        self.running = True
+        self.hud = HUD(self)
 
-    # Carregue a imagem do mapa aqui:
-    self.mapa_image = pygame.image.load(join('assets', 'img', 'mapa.png')).convert()
-    # Caso precise, ajuste o tamanho da imagem para a resolução da tela
-    self.mapa_image = pygame.transform.scale(self.mapa_image, (largura_tela, altura_tela))
+        # Carregue a imagem do mapa aqui:
+        #self.tmx_data = pytmx.load_pygame('assets', 'img', 'mapa.tmx')
+        #largura_mapa_pixels = self.tmx_data.width * self.tmx_data.tilewidth
+        #altura_mapa_pixels = self.tmx_data.height * self.tmx_data.tileheight
+        #self.mapa_surface = pygame.Surface((largura_mapa_pixels, altura_mapa_pixels))
 
-    
+        
         #máquina de estado
         self.estado_do_jogo = "menu_principal"
         self.menu_principal = MenuPrincipal(self)
@@ -128,32 +130,29 @@ class Game:
                 self.estado_do_jogo = 'game_over'
 
     def draw(self):
-    if self.estado_do_jogo == "menu_principal":
-        self.menu_principal.draw(self.tela)
+        if self.estado_do_jogo == "menu_principal":
+            self.menu_principal.draw(self.tela)
 
-    elif self.estado_do_jogo == 'jogando':
-        self.tela.blit(self.mapa_image, (0, 0))  # desenha o mapa como fundo
-        self.all_sprites.draw(self.tela)
-        self.hud.draw(self.tela)
+        elif self.estado_do_jogo == 'jogando':
+            self.tela.fill('black')
+            self.all_sprites.draw(self.player.posicao)
+            self.hud.draw(self.tela)
 
-    elif self.estado_do_jogo == 'pausa':
-        self.tela.blit(self.mapa_image, (0, 0))  # mapa como fundo na pausa
-        self.all_sprites.draw(self.tela)
-        self.menu_pausa.draw(self.tela)
+        elif self.estado_do_jogo == 'pausa':
+            self.tela.fill('black')
+            self.all_sprites.draw(self.player.posicao)
+            self.menu_pausa.draw(self.tela)
 
-    elif self.estado_do_jogo == 'ranking':
-        self.ranking.draw(self.tela)
+        elif self.estado_do_jogo == 'ranking':
+            self.ranking.draw(self.tela)
 
-    elif self.estado_do_jogo == "game_over":
-        self.tela_game_over.draw(self.tela)
+        elif self.estado_do_jogo == "game_over":
+            self.tela_game_over.draw(self.tela)
 
-    elif self.estado_do_jogo == "level_up":
-        self.all_sprites.draw(self.tela)
-        self.hud.draw(self.tela)
-        self.tela_de_upgrade_ativa.draw(self.tela)
-
-    pygame.display.update()
-
+        elif self.estado_do_jogo == "level_up":
+            self.all_sprites.draw(self.player.posicao)
+            self.hud.draw(self.tela)
+            self.tela_de_upgrade_ativa.draw(self.tela)
 
         pygame.display.update()  #pinta a tela
     
