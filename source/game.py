@@ -19,6 +19,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.hud = HUD(self)
+        
 
         # Carregue a imagem do mapa aqui:
         #self.tmx_data = pytmx.load_pygame('assets', 'img', 'mapa.tmx')
@@ -128,6 +129,7 @@ class Game:
 
             if self.player.vida_atual <= 0:
                 self.estado_do_jogo = 'game_over'
+                pygame.mixer.music.pause()  # pausa a música no game over
 
     def draw(self):
         if self.estado_do_jogo == "menu_principal":
@@ -162,17 +164,26 @@ class Game:
         self.projeteis_grupo.empty()
         self.inimigos_grupo.empty()
 
-        self.tempo_proximo_spawn = 0 #  SPAWN PARA UM NOVO JOGO
-        self.intervalo_spawn_inicial = 2.0 # Começa com um inimigo a cada 2s
+        self.tempo_proximo_spawn = 0
+        self.intervalo_spawn_inicial = 2.0
         self.intervalo_spawn_atual = self.intervalo_spawn_inicial
-        self.intervalo_minimo = 0.3  # Intervalo mais rápido possível
-        self.fator_dificuldade = 0.05  # Velocidade com que a dificuldade aumenta
+        self.intervalo_minimo = 0.3
+        self.fator_dificuldade = 0.05
 
-        self.player = Player(sheet_player=join('assets', 'img', 'player.png'), grupos=self.all_sprites)
+        self.player = Player(
+            sheet_player=join('assets', 'img', 'player.png'),
+            grupos=self.all_sprites
+        )
 
-                
-        #CÓDIGO DE TESTE, DEVE SER REMOVIDO DEPOIS
-                
+        # Certifique que o mixer está inicializado (melhor garantir)
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(join('assets', 'sounds', 'musica_tema.wav'))
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
         if not hasattr(self.player, 'armas'):
             self.player.armas = {}
 
