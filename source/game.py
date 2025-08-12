@@ -8,7 +8,7 @@ from weapon import *
 from os.path import join
 from menu import *
 from hud import *
-from enemies import InimigoBase, InimigoBug, InimigoListaIP
+from enemies import InimigoBase, InimigoBug, InimigoListaIP , BossInimigo, InimigoErro
 from grupos import AllSprites
 from ranking import Ranking 
 from levelup import *
@@ -100,15 +100,18 @@ class Game:
             self.tempo_proximo_spawn += delta_time
             
             #horda de inimigos
+            # --- LÓGICA DE SPAWN ---
             if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
                 self.tempo_proximo_spawn = 0
-                for _ in range(5): # Cria 5 inimigos de uma vez
+                self.hordas_contagem += 1
+
+                # Cria a horda de inimigos normais
+                for _ in range(4):
                     self.spawnar_inimigo()
 
-            #o cronômetro já atingiu o tempo
-            if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
-                self.tempo_proximo_spawn = 0 # zera o cronômetro para a próxima contagem
-                self.spawnar_inimigo()#cria o inimigo
+                # Verifica se é hora de spawnar o Boss e chama a FUNÇÃO
+                if self.hordas_contagem % 5 == 0:
+                    self.spawnar_inimigo(tipo='boss')
             
             #Deixa o jogo mais difícil com o tempo
             if self.intervalo_spawn_atual > self.intervalo_minimo:
@@ -203,32 +206,35 @@ class Game:
 
         self.estado_do_jogo = 'jogando'
     
-    def spawnar_inimigo(self):
+    def spawnar_inimigo(self, tipo='normal'):
         camera_center_x = self.player.posicao.x
         camera_center_y = self.player.posicao.y
-
         borda_esquerda = camera_center_x - largura_tela / 2
         borda_direita = camera_center_x + largura_tela / 2
         borda_topo = camera_center_y - altura_tela / 2
         borda_baixo = camera_center_y + altura_tela / 2
-    
         lado = random.choice(['top', 'bottom', 'left', 'right'])
         if lado == 'top':
             pos = (random.uniform(borda_esquerda, borda_direita), borda_topo - 50)
         elif lado == 'bottom':
-            pos = (random.uniform(borda_esquerda, borda_direita), borda_baixo + 50)
+            pos = (random.uniform(borda_esquerda,
+                   borda_direita), borda_baixo + 50)
         elif lado == 'left':
             pos = (borda_esquerda - 50, random.uniform(borda_topo, borda_baixo))
-        else: # 'right'
+        else:  # 'right'
             pos = (borda_direita + 50, random.uniform(borda_topo, borda_baixo))
-        
-        # tipos de inimigos que podem aparecer
-        tipos_de_inimigos_possiveis = [InimigoBug, InimigoListaIP]
 
-        # sorteia um tipo de inimigo aleatoriamente
-        inimigo_escolhido = random.choice(tipos_de_inimigos_possiveis)
-        # Instância do tipo  sorteado
-        inimigo_escolhido(posicao=pos, grupos=(self.all_sprites, self.inimigos_grupo), jogador=self.player)
+        # --- Lógica de qual inimigo criar ---
+        if tipo == 'boss':
+            # Se o tipo for 'boss', cria uma instância do BossInimigo
+            BossInimigo(posicao=pos, grupos=(self.all_sprites,
+                        self.inimigos_grupo), jogador=self.player)
+        else:  # Se o tipo for 'normal'
+            tipos_de_inimigos_possiveis = [
+                InimigoBase, InimigoErro, InimigoListaIP, InimigoBug]
+            inimigo_escolhido = random.choice(tipos_de_inimigos_possiveis)
+            inimigo_escolhido(posicao=pos, grupos=(
+                self.all_sprites, self.inimigos_grupo), jogador=self.player)
 
 
     def colisao(self):

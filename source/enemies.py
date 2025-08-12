@@ -68,6 +68,7 @@ class InimigoBug(InimigoBase):
         self.velocidade = 110
         self.vida = 1
         self.dano = 10
+
     def fatiar_spritesheet(self, sheet):
 
         largura_frame = 32 # 128px / 4 frames
@@ -135,3 +136,75 @@ class InimigoListaIP(InimigoBase):
         self.velocidade = 90
         self.vida = 2
         self.dano = 15
+
+class InimigoErro(InimigoBase):
+    def __init__(self, posicao, grupos, jogador):
+        super().__init__(posicao, grupos, jogador)
+
+        # --- Parte Visual do Inimigo CIRCULO ---
+        imagem_original = pygame.image.load(
+            join('assets', 'img', 'erro.png')).convert_alpha()
+
+        novo_tamanho = (100, 100)
+
+        self.rect = self.image.get_rect(center=self.posicao)
+
+        self.image = pygame.transform.scale(imagem_original, novo_tamanho)
+
+        self.rect = self.image.get_rect(center=self.posicao)
+
+        # Comportamento
+        self.velocidade = 110
+        self.vida = 1
+        self.dano = 10
+
+class BossInimigo(InimigoBase):
+    def __init__(self, posicao, grupos, jogador):
+        super().__init__(posicao, grupos, jogador)
+
+        # --- Parte Visual do BOSS ---
+        self.image = pygame.image.load(
+            join('assets', 'img', 'bossInimigo.png')).convert_alpha()
+        novo_tamanho = (150, 150)
+        self.image = pygame.transform.scale(self.image, novo_tamanho)
+        self.rect = self.image.get_rect(center=posicao)
+        self.posicao = pygame.math.Vector2(self.rect.center)
+
+        # --- Atributos do BOSS ---
+        self.vida = 100
+        self.dano = 30
+        self.velocidade = 35
+
+        # --- Comportamento Especial: Invocar Ajudantes ---
+
+        self.grupos_gerais = grupos
+        self.tempo_invocacao = 0
+        # Cooldown de 5 segundos (em milissegundos) para invocar
+        self.cooldown_invocacao = 5000
+
+    def invocar_ajudantes(self):
+        InimigoErro(posicao=self.posicao,
+                       grupos=self.grupos_gerais, jogador=self.jogador)
+
+    def morrer(self, grupos):
+        # Sobrescreve o método morrer para dar recompensas melhores
+        Items(posicao=self.posicao, sheet_item=join(
+            'assets', 'img', 'racket.png'), tipo='racket', grupos=grupos)
+
+        for _ in range(5):  # Dropa 5 shards grandes
+            posicao_drop = self.posicao + \
+                pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
+            Items(posicao=posicao_drop, sheet_item=join('assets', 'img',
+                  'bigShard.png'), tipo='big_shard', grupos=grupos)
+
+        self.kill()  # Remove o boss do jogo
+
+    def update(self, delta_time):
+        super().update(delta_time)
+
+        # Converte delta_time para milissegundos
+        self.tempo_invocacao += delta_time * 1000
+
+        if self.tempo_invocacao >= self.cooldown_invocacao:
+            self.tempo_invocacao = 0  # Reseta o timer
+            self.invocar_ajudantes()
