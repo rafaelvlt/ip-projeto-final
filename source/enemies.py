@@ -146,8 +146,6 @@ class BossInimigo(InimigoBase):
             for _ in range(2):
                 posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
                 Items(posicao=posicao_drop, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
-
-      
         self.kill()
 
     def update(self, delta_time):

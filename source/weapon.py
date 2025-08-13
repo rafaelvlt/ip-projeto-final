@@ -324,7 +324,7 @@ class Dicionario_Divino(Arma):
         self.nome = "Dicionário Divino"
         self.descricao = "Causa dano por segundo"
         self.nivel = 1
-        self.dano_por_segundo = 5 
+        self.dano_por_segundo = 1
         self.raio = 120
         self.cooldown = float('inf') 
 
@@ -348,7 +348,7 @@ class Dicionario_Divino(Arma):
         super().upgrade() # Aumenta self.nivel
 
    
-        self.dano_por_segundo += 5
+        self.dano_por_segundo += 1
         self.raio += 15
 
 
@@ -375,11 +375,15 @@ class Projetil_Area(pygame.sprite.Sprite):
         super().__init__(grupos)
         self.jogador = jogador
 
+        # Carrega a imagem dos parênteses uma única vez
+        self.imagem_parenteses_original = pygame.image.load(join('assets', 'img', 'dicionario.png')).convert_alpha()
+        
+
         #atributos e img
         self.raio = 0
         self.dano_por_segundo = 0
-        self.image = pygame.Surface((0,0))
-        self.rect = pygame.Rect(0, 0, 0, 0)
+        self.image = pygame.Surface((1,1))
+        self.rect = self.image.get_rect(center=self.jogador.posicao)
         
         self.inimigos_atingidos = set()
 
@@ -389,13 +393,14 @@ class Projetil_Area(pygame.sprite.Sprite):
         self.raio = novo_raio
         self.dano_por_segundo = novo_dano
         
-       
         self.image = pygame.Surface((self.raio * 2, self.raio * 2), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (0, 255, 255, 70), (self.raio, self.raio), self.raio)
+        pygame.draw.circle(self.image, (255, 255, 0, 40), (self.raio, self.raio), self.raio)
+
+        self.imagem_parenteses_red = pygame.transform.scale(self.imagem_parenteses_original, (self.raio * 2, self.raio * 2))
             
- 
-        posicao_central = self.rect.center if hasattr(self, 'rect') else self.jogador.posicao
-        self.rect = self.image.get_rect(center=posicao_central)
+
+        self.image.blit(self.imagem_parenteses_red, (0,0))
+        self.rect = self.image.get_rect(center=self.jogador.posicao)
 
     def update(self, delta_time):
         self.rect.center = self.jogador.posicao
