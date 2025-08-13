@@ -329,15 +329,22 @@ class Dicionario_Divino(Arma):
         self.raio = 120
         self.nome = "Dicionário Divino"
         self.descricao = "Um círculo sagrado que causa dano a inimigos próximos"
+        self.area_ativa = None
         
     def disparar(self):
         # cria o círculo de área que segue o jogador
-        Area_Dano(raio=self.raio,
+        self.area_ativa = Area_Dano(raio=self.raio,
             jogador=self.jogador,
             dano_por_segundo=self.dano_por_segundo,
             grupo_inimigos=self.grupo_inimigos,
-            grupos=(self.all_sprites, self.grupo_projeteis),
+            imagem_centro_path=join('assets', 'img', 'dicionario.png')
             )
+        self.all_sprites.add(self.area_ativa)
+
+    def update(self, delta_time):
+        # Atualiza o círculo se existir
+        if self.area_ativa:
+            self.area_ativa.update(delta_time)
         
     def upgrade(self):
         super().upgrade()
@@ -358,10 +365,8 @@ class Dicionario_Divino(Arma):
             f"Raio: {self.raio} -> {prox['raio']}"
         ] 
 
-    
-    
 class Area_Dano(pygame.sprite.Sprite):
-    def __init__(self, raio, jogador, dano_por_segundo, grupo_inimigos, grupos, imagem_centro=None):
+    def __init__(self, raio, jogador, dano_por_segundo, grupo_inimigos, grupos, imagem_centro_path=None):
         super().__init__(grupos)
         self.jogador = jogador
         self.raio = raio
@@ -372,17 +377,27 @@ class Area_Dano(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, (0, 255, 255, 70), (raio, raio), raio)
         self.rect = self.image.get_rect(center=jogador.posicao)
         #sprite central
-        if imagem_centro:
+        if imagem_centro_path:
             self.sprite_centro = pygame.image.load(join('assets', 'img', 'dicionario.png')).convert_alpha()
             self.sprite_centro_rect = self.sprite_centro.get_rect(center=self.jogador.posicao)
         else:
             self.sprite_centro = None
+            self.sprite_centro_rect = None
 
     def update(self, delta_time):
         # segue o jogador
         self.rect.center = self.jogador.posicao
-        self.sprite_centro_rect.center = self.jogador.posicao
+        if self.sprite_centro_rect:
+            self.sprite_centro_rect.center = self.jogador.posicao
         # aplica dano proporcional ao tempo
         for inimigo in self.grupo_inimigos:
-            if self.jogador.posicao.distance_to(inimigo.posicao) <= self.raio:
-                inimigo.receber_dano(self.dano_por_segundo * delta_time)
+            # calcula a distância entre o jogador (centro do círculo) e o inimigo
+            distancia = self.jogador.posicao.distance_to(inimigo.posicao)
+            if distancia <= self.raio:
+                # aplica dano proporcional ao tempo
+                inimigo.vida -= self.dano_por_segundo * delta_time
+
+    def draw_centro(self, tela):
+        # Desenha a sprite central sobre a superfície
+        if self.sprite_centro:
+            tela.blit(self.sprite_centro, self.sprite_centro_rect)

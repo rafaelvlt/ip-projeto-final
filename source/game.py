@@ -162,7 +162,7 @@ class Game:
             self.tempo_proximo_spawn += delta_time
             if self.player:
                 for arma in self.player.armas.values():
-                    arma.update()
+                    arma.update(delta_time)
 
             if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
                 self.tempo_proximo_spawn = 0
@@ -339,7 +339,6 @@ class Game:
             if inimigo.vida <= 0:
                 inimigo.morrer((self.all_sprites, self.item_group))
 
-<<<<<<< HEAD
     def draw(self):
         self.tela.fill((0,0,0))
         if self.estado_do_jogo == "menu_principal":
@@ -357,13 +356,11 @@ class Game:
         elif self.estado_do_jogo == "game_over":
             self.tela_game_over.draw(self.tela)
         elif self.estado_do_jogo == "level_up" and self.tela_de_upgrade_ativa:
-            self.all_sprites.draw(self.tela)
+            self.all_sprites.draw(self.player.posicao)
             self.hud.draw(self.tela)
             self.tela_de_upgrade_ativa.draw(self.tela)
 
         pygame.display.flip()
-=======
->>>>>>> f4da8baebc124bb7035e36596c5d0d9614d61d39
 
     def run(self):
         while self.running:
