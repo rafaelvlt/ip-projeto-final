@@ -73,16 +73,20 @@ class Player(pygame.sprite.Sprite):
             self.tempo_ultimo_dano = pygame.time.get_ticks()
 
     def level_up(self):
+        if self.vida_atual + self.vida_maxima/4 < self.vida_maxima:
+            self.vida_atual + self.vida_maxima/4
+        else:
+            self.vida_atual = self.vida_maxima
         if 1 <= self.contador_niveis <= 5:
             self.aumento_xp += 1
         elif 5 < self.contador_niveis <= 10:
             self.aumento_xp += 2
         elif 10 < self.contador_niveis <= 15:
-            self.aumento_xp += 3
+            self.aumento_xp += 2.5
         elif 15 < self.contador_niveis <= 20:
-            self.aumento_xp += 4
+            self.aumento_xp += 3
         else:
-            self.aumento_xp += 5
+            self.aumento_xp += 4
         
         self.experiencia_level_up = 100 * self.aumento_xp
         self.vida_maxima += 25

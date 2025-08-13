@@ -7,16 +7,37 @@ from settings import *
 
 
 class InimigoBase(pygame.sprite.Sprite):
-    def __init__(self, posicao, grupos, jogador):
+    def __init__(self, posicao, grupos, jogador, vida_base, dano_base, velocidade_base):
         super().__init__(grupos)
-        self.velocidade = 100
         self.jogador = jogador
-        self.vida = 1
-        self.dano = 10
+        self.vida_base = vida_base
+        self.dano_base = dano_base
+        self.velocidade_base = velocidade_base
         self.image = pygame.Surface((40, 40))
         self.image.fill('white')
         self.rect = self.image.get_rect(center=posicao)
         self.posicao = pygame.math.Vector2(self.rect.center)
+        #settando os status
+        self.vida = self.vida_base
+        self.dano = self.dano_base
+        self.velocidade = self.velocidade_base
+        #dificulta baseado no nivel do player
+        self.aplicar_dificuldade()
+
+        
+    def aplicar_dificuldade(self):
+        if 10 >= self.jogador.contador_niveis > 5:
+            self.vida *= self.jogador.contador_niveis / 5
+            self.dano *= self.jogador.contador_niveis / 5
+        elif 15 >= self.jogador.contador_niveis > 10:
+            self.vida *= self.jogador.contador_niveis / 2
+            self.dano *= self.jogador.contador_niveis / 2
+            self.velocidade *= self.jogador.contador_niveis / 10
+        elif self.jogador.contador_niveis > 15:
+            self.constante_lategame = self.jogador.contador_niveis - 15
+            self.vida *= self.constante_lategame * (self.jogador.contador_niveis)
+            self.dano *= self.constante_lategame * (self.jogador.contador_niveis)
+            self.velocidade *= self.jogador.contador_niveis / 10
 
     def morrer(self, grupos):
         dado = randint(0, 1000)
@@ -40,7 +61,7 @@ class InimigoBase(pygame.sprite.Sprite):
 
 class InimigoBug(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
-        super().__init__(posicao, grupos, jogador)
+        super().__init__(posicao, grupos, jogador, vida_base=1, dano_base=10, velocidade_base=110)
         spritesheet = pygame.image.load(join('assets', 'img', 'bug.png'))
         self.animacoes = self.fatiar_spritesheet(spritesheet)
         self.estado_animacao = 'down'
@@ -49,10 +70,7 @@ class InimigoBug(InimigoBase):
         self.ultimo_update_animacao = pygame.time.get_ticks()
         self.image = self.animacoes[self.estado_animacao][self.frame_atual]
         self.rect = self.image.get_rect(center=posicao)
-        self.velocidade = 110
-        self.vida = 1
-        self.dano = 10
-
+        
     def fatiar_spritesheet(self, sheet):
         largura_frame = 32
         altura_frame = 32
@@ -87,7 +105,7 @@ class InimigoBug(InimigoBase):
 
 class InimigoListaIP(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
-        super().__init__(posicao, grupos, jogador)
+        super().__init__(posicao, grupos, jogador, vida_base=2, dano_base=15, velocidade_base=90)
         self.image = pygame.image.load(join('assets', 'img', 'inimigo_listaIP.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (100, 80))
         self.rect = self.image.get_rect(center=self.posicao)
@@ -98,25 +116,18 @@ class InimigoListaIP(InimigoBase):
 
 class InimigoErro(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
-        super().__init__(posicao, grupos, jogador)
+        super().__init__(posicao, grupos, jogador, vida_base=1, dano_base=10, velocidade_base=110)
         imagem_original = pygame.image.load(join('assets', 'img', 'erro.png')).convert_alpha()
         self.image = pygame.transform.scale(imagem_original, (100, 100))
         self.rect = self.image.get_rect(center=self.posicao)
-        self.velocidade = 110
-        self.vida = 1
-        self.dano = 10
-
 
 class BossInimigo(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
-        super().__init__(posicao, grupos, jogador)
+        super().__init__(posicao, grupos, jogador, vida_base=100, dano_base=20, velocidade_base=35)
         self.image = pygame.image.load(join('assets', 'img', 'bossInimigo.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (150, 150))
         self.rect = self.image.get_rect(center=posicao)
         self.posicao = pygame.math.Vector2(self.rect.center)
-        self.vida = 100
-        self.dano = 20
-        self.velocidade = 35
         self.grupos_gerais = grupos
         self.tempo_invocacao = 0
         self.cooldown_invocacao = 5000
@@ -157,7 +168,7 @@ class BossInimigo(InimigoBase):
 
 class InimigoPython(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
-        super().__init__(posicao, grupos, jogador)
+        super().__init__(posicao, grupos, jogador, vida_base=1,dano_base=10, velocidade_base=75)
         spritesheet = pygame.image.load(join('assets', 'img', 'python.png'))
         self.image = pygame.transform.scale(spritesheet, (600, 600))
         self.animacoes = self.fatiar_spritesheet(self.image)
@@ -167,9 +178,6 @@ class InimigoPython(InimigoBase):
         self.ultimo_update_animacao = pygame.time.get_ticks()
         self.image = self.animacoes[self.estado_animacao][self.frame_atual]
         self.rect = self.image.get_rect(center=posicao)
-        self.velocidade = 75
-        self.vida = 1
-        self.dano = 10
 
     def fatiar_spritesheet(self, sheet):
         largura_frame = 150
