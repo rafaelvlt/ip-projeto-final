@@ -242,7 +242,7 @@ class Game:
 
         pygame.mixer.music.stop()
         pygame.mixer.music.load(join('assets', 'sounds', 'musica_tema.wav'))
-        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
 
         if not hasattr(self.player, 'armas'):
