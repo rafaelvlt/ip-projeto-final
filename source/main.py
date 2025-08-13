@@ -11,7 +11,7 @@ def main():
 
     game = Game(tela)
     game.run()
-
+    
     pygame.quit()
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ from settings import *
 from player import Player 
 from menu import *
 from hud import *
-from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo, InimigoPython
+from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo, InimigoLadrao, InimigoPython
 from weapon import Arma_Loop, ArmaLista, Dicionario_Divino
 from grupos import AllSprites
 from colaboradores import TelaColaboradores
@@ -168,12 +168,15 @@ class Game:
             if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
                 self.tempo_proximo_spawn = 0
                 self.hordas_contagem += 1
-
+                
                 for _ in range(4):
                     self.spawnar_inimigo()
 
                 if self.hordas_contagem % 5 == 0:
                     self.spawnar_inimigo(tipo='boss')
+                if self.hordas_contagem > 0 and self.hordas_contagem % 100 == 0:
+                # Spawna o inimigo especial que aparece a cada 100 hordas
+                    self.spawnar_inimigo(tipo='inimigo_horda_100')
 
             if self.intervalo_spawn_atual > self.intervalo_minimo:
                 self.intervalo_spawn_atual -= self.fator_dificuldade * delta_time
@@ -291,6 +294,10 @@ class Game:
             # Se o tipo for 'boss', cria uma instância do BossInimigo
             BossInimigo(posicao=pos, grupos=(self.all_sprites,
                         self.inimigos_grupo), jogador=self.player)
+        elif tipo == 'inimigo_horda_100':
+            # Inimigo especial que aparece a cada 100 hordas
+            InimigoLadrao(posicao=pos, grupos=(
+                self.all_sprites, self.inimigos_grupo), jogador=self.player)    
         else:  # Se o tipo for 'normal'
             tipos_de_inimigos_possiveis = [
                 InimigoErro, InimigoListaIP, InimigoBug, InimigoPython]
