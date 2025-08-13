@@ -50,7 +50,11 @@ class Game:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 self.running = False #sai do jogo
-            
+            #tela cheia
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_RETURN and (evento.mod & pygame.KMOD_ALT):
+                    pygame.display.toggle_fullscreen()
+                    continue
             #menus
             if self.estado_do_jogo == "menu_principal":
                 escolha = self.menu_principal.handle_event(evento)
