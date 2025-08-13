@@ -357,7 +357,7 @@ class Dicionario_Divino(Arma):
     def ver_proximo_upgrade(self):
         return {
             'nivel': self.nivel + 1,
-            'dano_por_segundo': self.dano_por_segundo + 5,
+            'dano_por_segundo': self.dano_por_segundo + 1,
             'raio': self.raio + 15
         }
 

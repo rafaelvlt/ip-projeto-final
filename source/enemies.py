@@ -115,7 +115,7 @@ class BossInimigo(InimigoBase):
         self.rect = self.image.get_rect(center=posicao)
         self.posicao = pygame.math.Vector2(self.rect.center)
         self.vida = 100
-        self.dano = 30
+        self.dano = 20
         self.velocidade = 35
         self.grupos_gerais = grupos
         self.tempo_invocacao = 0
