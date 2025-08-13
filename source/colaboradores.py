@@ -1,5 +1,5 @@
 import pygame
-from os.path import join
+from settings import *
 
 class TelaColaboradores:
     def __init__(self, game):
@@ -7,6 +7,7 @@ class TelaColaboradores:
         self.game = game
         
         self.imagem = pygame.image.load(join('assets', 'img', 'colaboradores.png')).convert()
+        self.imagem = pygame.transform.scale(self.imagem, (largura_tela, altura_tela))
         self.imagem_rect = self.imagem.get_rect(center=self.game.tela.get_rect().center)
 
     def handle_event(self, evento):

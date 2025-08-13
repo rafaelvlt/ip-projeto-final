@@ -5,7 +5,8 @@ from settings import *
 from player import Player 
 from menu import *
 from hud import *
-from enemies import InimigoBase, InimigoBug, InimigoListaIP, InimigoErro, BossInimigo
+from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo
+from weapon import *
 from grupos import AllSprites
 from colaboradores import TelaColaboradores
 from ranking import Ranking 
@@ -37,8 +38,9 @@ class Game:
 
         # Player e HUD
         self.player = None
-        self.hud = None
+        self.hud = HUD(self)
         self.tela_de_upgrade_ativa = None
+        self.buff = False
 
         # Controle de spawn
         self.tempo_proximo_spawn = 0
@@ -211,7 +213,7 @@ class Game:
             self.hud.draw(self.tela)
             self.tela_de_upgrade_ativa.draw(self.tela)
 
-        pygame.display.update()  #pinta a tela
+        pygame.display.update()
     
     def iniciar_novo_jogo(self):
         self.all_sprites.empty()
@@ -305,6 +307,7 @@ class Game:
                 if item.tipo in ['exp_shard', 'big_shard']:
                     self.player.experiencia_atual += 10 if item.tipo == 'exp_shard' else 50
                     if self.player.experiencia_atual >= self.player.experiencia_level_up:
+                        self.player.experiencia_atual -= self.player.experiencia_level_up
                         self.estado_do_jogo = 'level_up'
                         self.player.level_up()
                         self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
@@ -335,6 +338,7 @@ class Game:
             if inimigo.vida <= 0:
                 inimigo.morrer((self.all_sprites, self.item_group))
 
+<<<<<<< HEAD
     def draw(self):
         self.tela.fill((0,0,0))
         if self.estado_do_jogo == "menu_principal":
@@ -357,6 +361,8 @@ class Game:
             self.tela_de_upgrade_ativa.draw(self.tela)
 
         pygame.display.flip()
+=======
+>>>>>>> f4da8baebc124bb7035e36596c5d0d9614d61d39
 
     def run(self):
         while self.running:
