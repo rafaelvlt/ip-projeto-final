@@ -10,6 +10,7 @@ from menu import *
 from hud import *
 from enemies import InimigoBase, InimigoBug, InimigoListaIP , BossInimigo, InimigoErro
 from grupos import AllSprites
+from colaboradores import TelaColaboradores
 from ranking import Ranking 
 from levelup import *
 from mapa import *
@@ -26,6 +27,7 @@ class Game:
         self.menu_principal = MenuPrincipal(self)
         self.menu_pausa = MenuPausa(self)
         self.tela_game_over = TelaGameOver(self)
+        self.tela_colaboradores = TelaColaboradores(self)
         self.ranking = Ranking(self)
         self.tela_de_upgrade_ativa = None
 
@@ -59,6 +61,8 @@ class Game:
                 escolha = self.menu_principal.handle_event(evento)
                 if escolha == 'Start Game':
                     self.iniciar_novo_jogo()
+                if escolha == 'Colaboradores':
+                    self.estado_do_jogo = 'colaboradores'
                 if escolha == 'Ranking':
                     self.estado_do_jogo = 'ranking'
                 if escolha == 'Sair':
@@ -84,8 +88,11 @@ class Game:
                         
                         self.estado_do_jogo = 'jogando' # Volta para o jogo
                         self.tela_de_upgrade_ativa = None # Limpa a tela de upgrade
-
             
+            #tela de colaboradores
+            elif self.estado_do_jogo == 'colaboradores':
+                self.tela_colaboradores.handle_event(evento)
+            #tela de ranking
             elif self.estado_do_jogo == 'ranking':
                 action = self.ranking.handle_event(evento)
                 if action == 'exit_to_menu':
@@ -140,8 +147,6 @@ class Game:
             self.tela.fill('black')
             deslocamento = self.mapa.get_camera_offset(self.player.posicao, (largura_tela, altura_tela))
             self.mapa.draw(self.tela, deslocamento)
-
-
             self.all_sprites.draw(self.player.posicao)
             self.hud.draw(self.tela)
             if self.player:
@@ -151,6 +156,9 @@ class Game:
             self.tela.fill('black')
             self.all_sprites.draw(self.player.posicao)
             self.menu_pausa.draw(self.tela)
+
+        elif self.estado_do_jogo == 'colaboradores':
+            self.tela_colaboradores.draw(self.tela)
 
         elif self.estado_do_jogo == 'ranking':
             self.ranking.draw(self.tela)
