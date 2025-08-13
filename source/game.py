@@ -38,7 +38,7 @@ class Game:
         self.buff = False
         #mapa
         #self.mapa = Mapa(join('assets', 'map', 'mapa_cin.tmx'))
-
+        self.hordas_contagem = 0
     def run(self):
         while self.running:
             delta_time = self.clock.tick(fps) / 1000 #define o fps do jogo e retorna o delta time em milisegundo, por isso divide por 1k
@@ -231,7 +231,7 @@ class Game:
                         self.inimigos_grupo), jogador=self.player)
         else:  # Se o tipo for 'normal'
             tipos_de_inimigos_possiveis = [
-                InimigoBase, InimigoErro, InimigoListaIP, InimigoBug]
+                InimigoErro, InimigoListaIP, InimigoBug]
             inimigo_escolhido = random.choice(tipos_de_inimigos_possiveis)
             inimigo_escolhido(posicao=pos, grupos=(
                 self.all_sprites, self.inimigos_grupo), jogador=self.player)

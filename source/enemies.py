@@ -141,7 +141,7 @@ class InimigoErro(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
         super().__init__(posicao, grupos, jogador)
 
-        # --- Parte Visual do Inimigo CIRCULO ---
+        # --- Parte Visual do Inimigo Erro ---
         imagem_original = pygame.image.load(
             join('assets', 'img', 'erro.png')).convert_alpha()
 
