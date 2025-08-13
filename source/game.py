@@ -6,6 +6,7 @@ from player import Player
 from menu import *
 from hud import *
 from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo
+from weapon import *
 from grupos import AllSprites
 from colaboradores import TelaColaboradores
 from ranking import Ranking 
@@ -36,8 +37,9 @@ class Game:
 
         # Player e HUD
         self.player = None
-        self.hud = None
+        self.hud = HUD(self)
         self.tela_de_upgrade_ativa = None
+        self.buff = False
 
         # Controle de spawn
         self.tempo_proximo_spawn = 0
@@ -210,7 +212,7 @@ class Game:
             self.hud.draw(self.tela)
             self.tela_de_upgrade_ativa.draw(self.tela)
 
-        pygame.display.update()  #pinta a tela
+        pygame.display.update()
     
     def iniciar_novo_jogo(self):
         self.all_sprites.empty()
@@ -329,28 +331,6 @@ class Game:
             if inimigo.vida <= 0:
                 inimigo.morrer((self.all_sprites, self.item_group))
 
-    def draw(self):
-        self.tela.fill((0,0,0))
-        if self.estado_do_jogo == "menu_principal":
-            self.menu_principal.draw(self.tela)
-        elif self.estado_do_jogo == "jogando":
-            self.all_sprites.draw(self.tela)
-            if self.hud:
-                self.hud.draw(self.tela)
-        elif self.estado_do_jogo == "pausa":
-            self.menu_pausa.draw(self.tela)
-        elif self.estado_do_jogo == "ranking":
-            self.ranking.draw(self.tela)
-        elif self.estado_do_jogo == "colaboradores":
-            self.tela_colaboradores.draw(self.tela)
-        elif self.estado_do_jogo == "game_over":
-            self.tela_game_over.draw(self.tela)
-        elif self.estado_do_jogo == "level_up" and self.tela_de_upgrade_ativa:
-            self.all_sprites.draw(self.tela)
-            self.hud.draw(self.tela)
-            self.tela_de_upgrade_ativa.draw(self.tela)
-
-        pygame.display.flip()
 
     def run(self):
         while self.running:
