@@ -2,7 +2,7 @@ import pygame
 import random
 from os.path import join
 from settings import *
-from player import Player
+from player import Player 
 from menu import *
 from hud import *
 from enemies import InimigoBase, InimigoBug, InimigoListaIP, InimigoErro, BossInimigo
@@ -10,6 +10,8 @@ from grupos import AllSprites
 from colaboradores import TelaColaboradores
 from ranking import Ranking 
 from levelup import *
+from mapa import Mapa
+
 
 class Game:
     def __init__(self, tela):
