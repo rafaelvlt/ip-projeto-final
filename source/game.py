@@ -163,7 +163,7 @@ class Game:
             self.tempo_proximo_spawn += delta_time
             if self.player:
                 for arma in self.player.armas.values():
-                    arma.update()
+                    arma.update(delta_time)
 
             if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
                 self.tempo_proximo_spawn = 0
@@ -293,7 +293,7 @@ class Game:
                         self.inimigos_grupo), jogador=self.player)
         else:  # Se o tipo for 'normal'
             tipos_de_inimigos_possiveis = [
-                InimigoErro, InimigoListaIP, InimigoBug]
+                InimigoErro, InimigoListaIP, InimigoBug, InimigoPython]
             inimigo_escolhido = random.choice(tipos_de_inimigos_possiveis)
             inimigo_escolhido(posicao=pos, grupos=(
                 self.all_sprites, self.inimigos_grupo), jogador=self.player)
