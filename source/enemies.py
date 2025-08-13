@@ -21,7 +21,7 @@ class InimigoBase(pygame.sprite.Sprite):
     def morrer(self, grupos):
         dado = randint(0, 1000)
         if dado == 1000:
-            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'racket.png'), tipo='racket', grupos=grupos)
+            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'cafe.png'), tipo='cafe', grupos=grupos)
         elif dado >= 990:
             Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
         elif dado >= 970:
@@ -125,7 +125,7 @@ class BossInimigo(InimigoBase):
         InimigoErro(posicao=self.posicao, grupos=self.grupos_gerais, jogador=self.jogador)
 
     def morrer(self, grupos):
-        Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'racket.png'), tipo='racket', grupos=grupos)
+        Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'cafe.png'), tipo='cafe', grupos=grupos)
         for _ in range(5):
             posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
             Items(posicao=posicao_drop, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
