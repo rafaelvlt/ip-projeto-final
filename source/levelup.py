@@ -13,7 +13,8 @@ class TelaDeUpgrade:
         # TODO: Implementar uma lógica real para escolher 3 upgrades aleatórios e únicos.
         arma_existente = list(jogador.armas.values())[0]
         arma_existente_dois = list(jogador.armas.values())[1]
-        self.opcoes_de_armas = [arma_existente, arma_existente_dois, arma_existente] 
+        arma_existente_tres = list(jogador.armas.values())[2]
+        self.opcoes_de_armas = [arma_existente, arma_existente_dois, arma_existente_tres] 
         
         #cálculo do layout
         largura_painel, altura_painel = 800, 350
