@@ -8,7 +8,7 @@ from weapon import *
 from os.path import join
 from menu import *
 from hud import *
-from enemies import InimigoBase, InimigoBug, InimigoListaIP , BossInimigo, InimigoErro
+from enemies import InimigoBug, InimigoListaIP , BossInimigo, InimigoErro
 from grupos import AllSprites
 from ranking import Ranking 
 from levelup import *
