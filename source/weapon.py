@@ -145,23 +145,21 @@ class ArmaLista(Arma):
 
         #imagem
         self.surface_listas = pygame.image.load(join('assets', 'img', 'listas.png')).convert_alpha()
-        novo_tamanho = (60, 60)
-        self.surface_listas = pygame.transform.scale(self.surface_listas, novo_tamanho)
-
+        self.surface_listas = pygame.transform.scale(self.surface_listas, (45, 80))
         #grupos
         self.all_sprites = grupos[0]
         self.projeteis_grupo = grupos[1]
 
         #específicos da arma
-        self.nome = "Escudo de Listas"
-        self.descricao = "Protege o jogador!"
+        self.nome = "Domínio das Lâminas"
+        self.descricao = "Protegem o jogador!"
         self.nivel = 1
         self.num_listas = 1
         self.dano = 15
         self.velocidade = 0
         self.cooldown = 5000
         self.duracao = 4000
-        self.distancia_orbita = 100
+        self.distancia_orbita = 140
         self.velocidade_rotacao = 90
         
 

@@ -160,6 +160,9 @@ class Game:
         if self.estado_do_jogo == "jogando":
             self.all_sprites.update(delta_time)
             self.tempo_proximo_spawn += delta_time
+            if self.player:
+                for arma in self.player.armas.values():
+                    arma.update()
 
             if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
                 self.tempo_proximo_spawn = 0
@@ -191,9 +194,7 @@ class Game:
             self.mapa.draw(self.tela, deslocamento)
             self.all_sprites.draw(self.player.posicao)
             self.hud.draw(self.tela)
-            if self.player:
-                for arma in self.player.armas.values():
-                    arma.update()
+
         elif self.estado_do_jogo == 'pausa':
             self.tela.fill('black')
             self.all_sprites.draw(self.player.posicao)
