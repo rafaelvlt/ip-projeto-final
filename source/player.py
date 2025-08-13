@@ -40,7 +40,7 @@ class Player(pygame.sprite.Sprite):
             "exp_shard": 0,
             "life_orb": 0,
             "big_shard": 0,
-            "racket" : 0
+            "cafe" : 0
         }
 
         #invencibilidade
