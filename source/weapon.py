@@ -394,7 +394,7 @@ class Projetil_Area(pygame.sprite.Sprite):
         self.dano_por_segundo = novo_dano
         
         self.image = pygame.Surface((self.raio * 2, self.raio * 2), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (255, 255, 0, 40), (self.raio, self.raio), self.raio)
+        pygame.draw.circle(self.image, (255, 255, 0, 25), (self.raio, self.raio), self.raio)
 
         self.imagem_parenteses_red = pygame.transform.scale(self.imagem_parenteses_original, (self.raio * 2, self.raio * 2))
             
