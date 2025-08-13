@@ -317,32 +317,42 @@ class Projetil_Lista(Projetil):
 
 class Dicionario_Divino(Arma):
     def __init__(self, jogador, grupos, game):
-        super().__init__(jogador=jogador)
-        self.game = game
-        # grupos
-        self.all_sprites = grupos[0]
-        self.grupo_projeteis = grupos[1]
-        self.grupo_inimigos = grupos[2]
-        # status da arma
-        self.nivel = 1
-        self.dano_por_segundo = 0.5
-        self.raio = 120
+        super().__init__(jogador=jogador) 
+        self.game = game 
+
+        # Status Iniciais da Arma
         self.nome = "Dicionário Divino"
-        self.descricao = "Um círculo sagrado que causa dano a inimigos próximos"
-        
-    def disparar(self):
-        # cria o círculo de área que segue o jogador
-        Area_Dano(raio=self.raio,
+        self.descricao = "Causa dano por segundo"
+        self.nivel = 1
+        self.dano_por_segundo = 5 
+        self.raio = 120
+        self.cooldown = float('inf') 
+
+
+        self.area_de_dano = Projetil_Area(
             jogador=self.jogador,
+            raio=self.raio,
             dano_por_segundo=self.dano_por_segundo,
-            grupo_inimigos=self.grupo_inimigos,
-            grupos=(self.all_sprites, self.grupo_projeteis),
-            )
-        
+            grupos=(grupos[0], grupos[1])
+        )
+
+    def disparar(self):
+      
+        pass
+    
+    def update(self):
+
+        pass
+
     def upgrade(self):
-        super().upgrade()
-        self.dano_por_segundo += 0.25
+        super().upgrade() # Aumenta self.nivel
+
+   
+        self.dano_por_segundo += 5
         self.raio += 15
+
+
+        self.area_de_dano.atualizar_stats(self.raio, self.dano_por_segundo)
 
     def ver_proximo_upgrade(self):
         return {
@@ -360,29 +370,32 @@ class Dicionario_Divino(Arma):
 
     
     
-class Area_Dano(pygame.sprite.Sprite):
-    def __init__(self, raio, jogador, dano_por_segundo, grupo_inimigos, grupos, imagem_centro=None):
+class Projetil_Area(pygame.sprite.Sprite):
+    def __init__(self, jogador, raio, dano_por_segundo, grupos):
         super().__init__(grupos)
         self.jogador = jogador
-        self.raio = raio
-        self.dano_por_segundo = dano_por_segundo
-        self.grupo_inimigos = grupo_inimigos
-        # superfície circular
-        self.image = pygame.Surface((raio*2, raio*2), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (0, 255, 255, 70), (raio, raio), raio)
-        self.rect = self.image.get_rect(center=jogador.posicao)
-        #sprite central
-        if imagem_centro:
-            self.sprite_centro = pygame.image.load(join('assets', 'img', 'dicionario.png')).convert_alpha()
-            self.sprite_centro_rect = self.sprite_centro.get_rect(center=self.jogador.posicao)
-        else:
-            self.sprite_centro = None
+
+        #atributos e img
+        self.raio = 0
+        self.dano_por_segundo = 0
+        self.image = pygame.Surface((0,0))
+        self.rect = pygame.Rect(0, 0, 0, 0)
+        
+        self.inimigos_atingidos = set()
+
+        self.atualizar_stats(raio, dano_por_segundo)
+
+    def atualizar_stats(self, novo_raio, novo_dano):
+        self.raio = novo_raio
+        self.dano_por_segundo = novo_dano
+        
+       
+        self.image = pygame.Surface((self.raio * 2, self.raio * 2), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, (0, 255, 255, 70), (self.raio, self.raio), self.raio)
+            
+ 
+        posicao_central = self.rect.center if hasattr(self, 'rect') else self.jogador.posicao
+        self.rect = self.image.get_rect(center=posicao_central)
 
     def update(self, delta_time):
-        # segue o jogador
         self.rect.center = self.jogador.posicao
-        self.sprite_centro_rect.center = self.jogador.posicao
-        # aplica dano proporcional ao tempo
-        for inimigo in self.grupo_inimigos:
-            if self.jogador.posicao.distance_to(inimigo.posicao) <= self.raio:
-                inimigo.receber_dano(self.dano_por_segundo * delta_time)

@@ -6,7 +6,7 @@ from player import Player
 from menu import *
 from hud import *
 from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo
-from weapon import *
+from weapon import Arma_Loop, ArmaLista, Dicionario_Divino
 from grupos import AllSprites
 from colaboradores import TelaColaboradores
 from ranking import Ranking 
@@ -26,6 +26,7 @@ class Game:
         self.all_sprites = AllSprites()
         self.item_group = pygame.sprite.Group()
         self.projeteis_grupo = pygame.sprite.Group()
+        self.auras_grupo = pygame.sprite.Group()
         self.inimigos_grupo = pygame.sprite.Group()
 
         # Menus
@@ -177,7 +178,7 @@ class Game:
             if self.intervalo_spawn_atual > self.intervalo_minimo:
                 self.intervalo_spawn_atual -= self.fator_dificuldade * delta_time
 
-            self.colisao()
+            self.colisao(delta_time)
 
             if self.player.vida_atual <= 0:
                 self.estado_do_jogo = 'game_over'
@@ -258,7 +259,7 @@ class Game:
                                 game=self)
                         
         arma_dicionario = Dicionario_Divino(jogador=self.player,
-                     grupos=(self.all_sprites, self.projeteis_grupo, self.inimigos_grupo),
+                     grupos=(self.all_sprites, self.auras_grupo),
                      game=self)
 
         self.player.armas['Laço'] = arma_Loop
@@ -298,7 +299,7 @@ class Game:
                 self.all_sprites, self.inimigos_grupo), jogador=self.player)
 
 
-    def colisao(self):
+    def colisao(self, delta_time):
         # Coleta de itens
         colisao_items = pygame.sprite.spritecollide(self.player, self.item_group, dokill=True)
         for item in colisao_items:
@@ -333,38 +334,25 @@ class Game:
             for inimigo in novos_acertos:
                 inimigo.vida -= projetil.dano
             projetil.inimigos_atingidos = set(inimigos)
+        # colisao com dot
+        if self.auras_grupo:
+            colisoes_aura = pygame.sprite.groupcollide(
+                self.inimigos_grupo, 
+                self.auras_grupo, 
+                False, 
+                False, 
+                pygame.sprite.collide_circle
+            )
+            for inimigo, auras in colisoes_aura.items():
+                for aura in auras: 
+                    dano_neste_frame = aura.dano_por_segundo * delta_time
+                    inimigo.vida -= dano_neste_frame
+
 
         # Morte de inimigos
         for inimigo in list(self.inimigos_grupo):
             if inimigo.vida <= 0:
                 inimigo.morrer((self.all_sprites, self.item_group))
-
-<<<<<<< HEAD
-    def draw(self):
-        self.tela.fill((0,0,0))
-        if self.estado_do_jogo == "menu_principal":
-            self.menu_principal.draw(self.tela)
-        elif self.estado_do_jogo == "jogando":
-            self.all_sprites.draw(self.player.posicao)
-            if self.hud:
-                self.hud.draw(self.tela)
-        elif self.estado_do_jogo == "pausa":
-            self.menu_pausa.draw(self.tela)
-        elif self.estado_do_jogo == "ranking":
-            self.ranking.draw(self.tela)
-        elif self.estado_do_jogo == "colaboradores":
-            self.tela_colaboradores.draw(self.tela)
-        elif self.estado_do_jogo == "game_over":
-            self.tela_game_over.draw(self.tela)
-        elif self.estado_do_jogo == "level_up" and self.tela_de_upgrade_ativa:
-            self.all_sprites.draw(self.tela)
-            self.hud.draw(self.tela)
-            self.tela_de_upgrade_ativa.draw(self.tela)
-
-        pygame.display.flip()
-=======
->>>>>>> f4da8baebc124bb7035e36596c5d0d9614d61d39
-
     def run(self):
         while self.running:
             delta_time = self.clock.tick(fps) / 1000
