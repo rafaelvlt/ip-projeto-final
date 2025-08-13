@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 
 largura_tela = 1280
-altura_tela = 960
+altura_tela = 720
 
 LARGURA_MAPA = 15360 
 ALTURA_MAPA = 10240 

@@ -161,6 +161,9 @@ class Game:
         if self.estado_do_jogo == "jogando":
             self.all_sprites.update(delta_time)
             self.tempo_proximo_spawn += delta_time
+            if self.player:
+                for arma in self.player.armas.values():
+                    arma.update(delta_time)
 
             if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
                 self.tempo_proximo_spawn = 0
