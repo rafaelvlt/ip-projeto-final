@@ -99,12 +99,55 @@ class InimigoListaIP(InimigoBase):
 class InimigoErro(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
         super().__init__(posicao, grupos, jogador)
-        imagem_original = pygame.image.load(join('assets', 'img', 'erro.png')).convert_alpha()
-        self.image = pygame.transform.scale(imagem_original, (100, 100))
-        self.rect = self.image.get_rect(center=self.posicao)
-        self.velocidade = 110
-        self.vida = 1
-        self.dano = 10
+        spritesheet = pygame.image.load(join('assets', 'img', 'erro.png'))
+        self.image = pygame.transform.scale(spritesheet, (72, 72))
+        self.animacoes = self.fatiar_spritesheet(self.image)
+        self.estado_animacao = 'down'
+        self.frame_atual = 0
+        self.velocidade_animacao = 150
+        self.ultimo_update_animacao = pygame.time.get_ticks()
+        self.image = self.animacoes[self.estado_animacao][self.frame_atual]
+        self.rect = self.image.get_rect(center=posicao)
+        self.velocidade = 200
+        self.vida = 0.5
+        self.dano = 5
+
+        self.font = pygame.font.Font(None, 30) # Usa a fonte padrão do Pygame
+        self.text_surface = self.font.render("Erro 404", True, (255, 255, 255)) # Cria o texto na cor branca
+        self.text_rect = self.text_surface.get_rect()
+
+    def fatiar_spritesheet(self, sheet):
+        largura_frame = 18
+        altura_frame = 18
+        animacoes = {'up': [], 'left': [], 'right': [], 'down': []}
+        for linha, nome_animacao in enumerate(['down', 'left', 'right', 'up']):
+            for coluna in range(4):
+                x = coluna * largura_frame
+                y = linha * altura_frame
+                frame = sheet.subsurface(pygame.Rect(x, y, largura_frame, altura_frame))
+                frame_escalado = pygame.transform.scale(frame, (100, 100))
+                animacoes[nome_animacao].append(frame_escalado)
+        return animacoes
+
+    def animar(self):
+        agora = pygame.time.get_ticks()
+        if agora - self.ultimo_update_animacao > self.velocidade_animacao:
+            self.ultimo_update_animacao = agora
+            self.frame_atual = (self.frame_atual + 1) % len(self.animacoes[self.estado_animacao])
+            self.image = self.animacoes[self.estado_animacao][self.frame_atual]
+            self.rect = self.image.get_rect(center=self.rect.center)
+
+    def update(self, delta_time):
+        direcao = (self.jogador.posicao - self.posicao).normalize() if (self.jogador.posicao - self.posicao).length() > 0 else pygame.math.Vector2()
+        self.posicao += direcao * self.velocidade * delta_time
+        self.rect.center = (round(self.posicao.x), round(self.posicao.y))
+        if abs(direcao.y) > abs(direcao.x):
+            self.estado_animacao = 'up' if direcao.y < 0 else 'down'
+        elif abs(direcao.x) > 0:
+            self.estado_animacao = 'left' if direcao.x < 0 else 'right'
+        self.text_rect.centerx = self.rect.centerx
+        self.text_rect.bottom = self.rect.top - 5 # -5 para dar um espacinho
+        self.animar()
 
 
 class BossInimigo(InimigoBase):

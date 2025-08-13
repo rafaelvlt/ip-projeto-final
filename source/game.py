@@ -343,10 +343,20 @@ class Game:
         self.tela.fill((0,0,0))
         if self.estado_do_jogo == "menu_principal":
             self.menu_principal.draw(self.tela)
-        elif self.estado_do_jogo == "jogando":
+        elif self.estado_do_jogo == 'jogando':
+            #desenha mapa
+            self.tela.fill('black')
+            deslocamento = self.mapa.get_camera_offset(self.player.posicao, (largura_tela, altura_tela))
+            self.mapa.draw(self.tela, deslocamento)
+            
             self.all_sprites.draw(self.player.posicao)
-            if self.hud:
-                self.hud.draw(self.tela)
+
+            for inimigo in self.inimigos_grupo:
+                if hasattr(inimigo, 'ERRO 404'):
+                    posicao_texto_na_tela = inimigo.text_rect.move(deslocamento)
+                    self.tela.blit(inimigo.text_surface, posicao_texto_na_tela)
+
+            self.hud.draw(self.tela)
         elif self.estado_do_jogo == "pausa":
             self.menu_pausa.draw(self.tela)
         elif self.estado_do_jogo == "ranking":
