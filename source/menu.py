@@ -10,6 +10,8 @@ class MenuPrincipal:
         self.game = game
         self.font = pygame.font.SysFont(None, 48)
         self.bg = pygame.image.load(join('assets', 'img', 'CInMenu.jpeg'))
+        self.bg = pygame.transform.scale(self.bg, (largura_tela, altura_tela))
+        self.bg_rect = self.bg.get_rect(center=self.game.tela.get_rect().center)
         self.opcoes = ["Start Game", "Ranking", "Colaboradores", "Sair"]
         self.selecionada = 0
 
