@@ -340,7 +340,7 @@ class Dicionario_Divino(Arma):
       
         pass
     
-    def update(self):
+    def update(self, delta_time):
 
         pass
 
