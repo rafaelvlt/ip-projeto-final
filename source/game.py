@@ -5,7 +5,7 @@ from settings import *
 from player import Player 
 from menu import *
 from hud import *
-from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo
+from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo, InimigoPython
 from weapon import *
 from grupos import AllSprites
 from colaboradores import TelaColaboradores
@@ -292,7 +292,7 @@ class Game:
                         self.inimigos_grupo), jogador=self.player)
         else:  # Se o tipo for 'normal'
             tipos_de_inimigos_possiveis = [
-                InimigoErro, InimigoListaIP, InimigoBug]
+                InimigoErro, InimigoListaIP, InimigoBug, InimigoPython]
             inimigo_escolhido = random.choice(tipos_de_inimigos_possiveis)
             inimigo_escolhido(posicao=pos, grupos=(
                 self.all_sprites, self.inimigos_grupo), jogador=self.player)
