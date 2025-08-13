@@ -18,6 +18,7 @@ class MenuPrincipal:
         # Música de fundo
         self.musica = join('assets', 'sounds', 'musica_menu.ogg')
         pygame.mixer.music.load(self.musica)
+        pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
 
     def handle_event(self, event):
@@ -70,6 +71,7 @@ class TelaGameOver:
         self.bg = pygame.image.load(join('assets', 'img', 'game_over.png')).convert_alpha()
         self.bg = pygame.transform.scale(self.bg, (largura_tela, altura_tela))
         self.som = pygame.mixer.Sound(join('assets', 'sounds', 'game_over.wav'))
+        pygame.mixer.music.set_volume(0.3)
         self.som_tocado = False
 
     def draw(self, tela):

@@ -242,7 +242,7 @@ class Game:
 
         pygame.mixer.music.stop()
         pygame.mixer.music.load(join('assets', 'sounds', 'musica_tema.wav'))
-        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
 
         if not hasattr(self.player, 'armas'):
@@ -315,12 +315,9 @@ class Game:
                         self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
                 elif item.tipo == 'life_orb':
                     self.player.vida_atual = min(self.player.vida_atual + self.player.vida_maxima / 4, self.player.vida_maxima)
-                elif item.tipo == 'racket':
+                elif item.tipo == 'cafe':
                     self.player.vida_atual = self.player.vida_maxima
-                    self.player.experiencia_atual = self.player.experiencia_level_up
-                    self.estado_do_jogo = 'level_up'
-                    self.player.level_up()
-                    self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
+                    self.player.adicionar_tempo_buff(10)
 
         # Colisão com inimigos
         colisao_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)

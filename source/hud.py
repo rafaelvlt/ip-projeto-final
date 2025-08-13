@@ -20,9 +20,9 @@ class HUD:
         #life orb
         self.icone_life_orb = pygame.image.load(join('assets', 'img', 'lifeOrb.png')).convert_alpha()
         self.icone_life_orb = pygame.transform.scale(self.icone_life_orb, (30, 30))
-        #racket
-        self.icone_racket = pygame.image.load(join('assets', 'img', 'racket.png')). convert_alpha()
-        self.icone_racket = pygame.transform.scale(self.icone_racket, (30, 30))
+        #cafe
+        self.icone_cafe = pygame.image.load(join('assets', 'img', 'cafe.png')). convert_alpha()
+        self.icone_cafe = pygame.transform.scale(self.icone_cafe, (30, 30))
 
     def draw_barra_exp(self, tela):
         jogador = self.game.player
@@ -51,7 +51,7 @@ class HUD:
         posicao_y = jogador.rect.bottom + deslocamento.y + 5
 
         largura_barra = jogador.rect.width
-        altura_barra = 7
+        altura_barra = 10
         porcentagem_vida = max(0, jogador.vida_atual / jogador.vida_maxima)
 
         #barra total
@@ -68,7 +68,7 @@ class HUD:
         contagem_exp = self.game.player.coletaveis['exp_shard']
         contagem_big = self.game.player.coletaveis['big_shard']
         contagem_life = self.game.player.coletaveis['life_orb']
-        contagem_racket = self.game.player.coletaveis['racket']
+        contagem_cafe = self.game.player.coletaveis['cafe']
 
         #contador dos coletáveis
         life_surf = self.font.render(f'{contagem_life}', True, 'white')
@@ -80,8 +80,8 @@ class HUD:
         big_surf = self.font.render(f'{contagem_big}', True, 'white')
         big_rect = big_surf.get_rect(midleft = (60, 140))
 
-        racket_surf = self.font.render(f'{contagem_racket}', True, 'white')
-        racket_rect = racket_surf.get_rect(midleft = (60, 190))
+        cafe_surf = self.font.render(f'{contagem_cafe}', True, 'white')
+        cafe_rect = cafe_surf.get_rect(midleft = (60, 190))
 
 
         #desenha os icones de cada coletáveis com a respectiva contagem
@@ -95,8 +95,8 @@ class HUD:
         tela.blit(self.icone_big_shard, (20, 125))
         tela.blit(big_surf, big_rect)
 
-        tela.blit(self.icone_racket, (20, 175))
-        tela.blit(racket_surf, racket_rect)
+        tela.blit(self.icone_cafe, (20, 175))
+        tela.blit(cafe_surf, cafe_rect)
 
         #desenha barra de vida
         self.draw_barra_vida(tela)
