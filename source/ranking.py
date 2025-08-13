@@ -1,11 +1,12 @@
 import pygame
+from os.path import join
 
 class Ranking:
     def __init__(self, game):
         self.game = game
         self.font = pygame.font.Font(None, 48)
         self.scores = []
-        
+
         self.input_mode = False 
         self.player_name = ""
         self.current_score = 0
@@ -14,6 +15,11 @@ class Ranking:
         self.color_inactive = pygame.Color('gray15')
         self.color = self.color_inactive
         self.active = False
+
+        # --- Carregar background ---
+        self.background = pygame.image.load(join('assets', 'img', 'ranking.jpg')).convert()
+        # Opcional: ajustar para a tela
+        self.background = pygame.transform.scale(self.background, (self.game.tela.get_width(), self.game.tela.get_height()))
 
     def start_name_input(self, score):
         self.input_mode = True
@@ -24,10 +30,8 @@ class Ranking:
 
     def add_score_and_finish_input(self):
         name_to_add = self.player_name if self.player_name.strip() != "" else "Player"
-        
         self.scores.append({'name': name_to_add, 'score': self.current_score})
         self.scores = sorted(self.scores, key=lambda x: x['score'], reverse=True)[:10]
-        
         self.input_mode = False
         self.active = False
         self.color = self.color_inactive
@@ -38,19 +42,19 @@ class Ranking:
                 return 'exit_to_menu'
             return None
 
-        if event.type == pygame.KEYDOWN:
-            if self.active:
-                if event.key == pygame.K_RETURN:
-                    self.add_score_and_finish_input()
-                elif event.key == pygame.K_BACKSPACE:
-                    self.player_name = self.player_name[:-1]
-                else:
-                    if self.font.size(self.player_name + event.unicode)[0] < self.input_rect.width - 10:
-                        self.player_name += event.unicode
+        if event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_RETURN:
+                self.add_score_and_finish_input()
+            elif event.key == pygame.K_BACKSPACE:
+                self.player_name = self.player_name[:-1]
+            else:
+                if self.font.size(self.player_name + event.unicode)[0] < self.input_rect.width - 10:
+                    self.player_name += event.unicode
         return None
 
     def draw(self, tela):
-        tela.fill((30, 30, 30))
+        # --- Desenhar background ---
+        tela.blit(self.background, (0, 0))
 
         if self.input_mode:
             title_text = self.font.render("Fim de Jogo!", True, (255, 255, 255))
