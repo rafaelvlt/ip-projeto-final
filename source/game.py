@@ -301,6 +301,7 @@ class Game:
                 if item.tipo in ['exp_shard', 'big_shard']:
                     self.player.experiencia_atual += 10 if item.tipo == 'exp_shard' else 50
                     if self.player.experiencia_atual >= self.player.experiencia_level_up:
+                        self.player.experiencia_atual -= self.player.experiencia_level_up
                         self.estado_do_jogo = 'level_up'
                         self.player.level_up()
                         self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
