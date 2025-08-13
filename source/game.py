@@ -11,6 +11,7 @@ from colaboradores import TelaColaboradores
 from ranking import Ranking 
 from levelup import *
 from mapa import Mapa
+from weapon import Arma_Loop, ArmaLista, Dicionario_Divino
 
 
 class Game:
@@ -253,8 +254,13 @@ class Game:
                                 grupos=(self.all_sprites, self.projeteis_grupo),
                                 game=self)
                         
+        arma_dicionario = Dicionario_Divino(jogador=self.player,
+                     grupos=(self.all_sprites, self.projeteis_grupo, self.inimigos_grupo),
+                     game=self)
+
         self.player.armas['Laço'] = arma_Loop
         self.player.armas['Listas'] = arma_listas
+        self.player.armas['Nova'] = arma_dicionario
 
         self.estado_do_jogo = 'jogando'
     
@@ -334,7 +340,7 @@ class Game:
         if self.estado_do_jogo == "menu_principal":
             self.menu_principal.draw(self.tela)
         elif self.estado_do_jogo == "jogando":
-            self.all_sprites.draw(self.tela)
+            self.all_sprites.draw(self.player.posicao)
             if self.hud:
                 self.hud.draw(self.tela)
         elif self.estado_do_jogo == "pausa":

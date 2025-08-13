@@ -7,7 +7,7 @@ def main():
     pygame.mixer.init()
 
     tela = pygame.display.set_mode((largura_tela, altura_tela))
-    pygame.display.set_caption("Seu Jogo")
+    pygame.display.set_caption("CInvivors")
 
     game = Game(tela)
     game.run()

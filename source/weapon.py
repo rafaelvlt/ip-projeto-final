@@ -316,3 +316,75 @@ class Projetil_Lista(Projetil):
         # verifica se acabou a duração
         if pygame.time.get_ticks() - self.tempo_criacao > self.duracao:
             self.kill()
+
+class Dicionario_Divino(Arma):
+    def __init__(self, jogador, grupos, game):
+        super().__init__(jogador=jogador)
+        self.game = game
+        # grupos
+        self.all_sprites = grupos[0]
+        self.grupo_projeteis = grupos[1]
+        self.grupo_inimigos = grupos[2]
+        # status da arma
+        self.nivel = 1
+        self.dano_por_segundo = 0.5
+        self.raio = 120
+        self.nome = "Dicionário Divino"
+        self.descricao = "Um círculo sagrado que causa dano a inimigos próximos"
+        
+    def disparar(self):
+        # cria o círculo de área que segue o jogador
+        Area_Dano(raio=self.raio,
+            jogador=self.jogador,
+            dano_por_segundo=self.dano_por_segundo,
+            grupo_inimigos=self.grupo_inimigos,
+            grupos=(self.all_sprites, self.grupo_projeteis),
+            )
+        
+    def upgrade(self):
+        super().upgrade()
+        self.dano_por_segundo += 0.25
+        self.raio += 15
+
+    def ver_proximo_upgrade(self):
+        return {
+            'nivel': self.nivel + 1,
+            'dano_por_segundo': self.dano_por_segundo + 5,
+            'raio': self.raio + 15
+        }
+
+    def get_estatisticas_para_exibir(self):
+        prox = self.ver_proximo_upgrade()
+        return [
+            f"Dano/s: {self.dano_por_segundo:.2f} -> {prox['dano_por_segundo']:.2f}",
+            f"Raio: {self.raio} -> {prox['raio']}"
+        ] 
+
+    
+    
+class Area_Dano(pygame.sprite.Sprite):
+    def __init__(self, raio, jogador, dano_por_segundo, grupo_inimigos, grupos, imagem_centro=None):
+        super().__init__(grupos)
+        self.jogador = jogador
+        self.raio = raio
+        self.dano_por_segundo = dano_por_segundo
+        self.grupo_inimigos = grupo_inimigos
+        # superfície circular
+        self.image = pygame.Surface((raio*2, raio*2), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, (0, 255, 255, 70), (raio, raio), raio)
+        self.rect = self.image.get_rect(center=jogador.posicao)
+        #sprite central
+        if imagem_centro:
+            self.sprite_centro = pygame.image.load(join('assets', 'img', 'dicionario.png')).convert_alpha()
+            self.sprite_centro_rect = self.sprite_centro.get_rect(center=self.jogador.posicao)
+        else:
+            self.sprite_centro = None
+
+    def update(self, delta_time):
+        # segue o jogador
+        self.rect.center = self.jogador.posicao
+        self.sprite_centro_rect.center = self.jogador.posicao
+        # aplica dano proporcional ao tempo
+        for inimigo in self.grupo_inimigos:
+            if self.jogador.posicao.distance_to(inimigo.posicao) <= self.raio:
+                inimigo.receber_dano(self.dano_por_segundo * delta_time)
