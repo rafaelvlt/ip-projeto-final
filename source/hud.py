@@ -51,7 +51,7 @@ class HUD:
         posicao_y = jogador.rect.bottom + deslocamento.y + 5
 
         largura_barra = jogador.rect.width
-        altura_barra = 7
+        altura_barra = 10
         porcentagem_vida = max(0, jogador.vida_atual / jogador.vida_maxima)
 
         #barra total
