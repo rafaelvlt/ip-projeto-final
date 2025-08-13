@@ -2,7 +2,7 @@ import pygame
 from settings import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, sheet_player, grupos):
+    def __init__(self, posicao_inicial, sheet_player, grupos):
         """
         Inicia o jogador.
         sheet_player: Imagem.
@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
 
         #imagem e posicao
         self.image = self.frame
-        self.rect = self.image.get_rect(center = (altura_tela/2, largura_tela/2))
+        self.rect = self.image.get_rect(center = (posicao_inicial[0]/2, posicao_inicial[1]/2))
         self.posicao = pygame.math.Vector2(self.rect.center)
 
         #armas do player

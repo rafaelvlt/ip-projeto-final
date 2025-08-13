@@ -8,12 +8,10 @@ class Mapa:
 
         self.tmx_data = pytmx.load_pygame(join('assets', 'map', 'mapa_cin.tmx'))
 
-        largura_mapa_pixels = self.tmx_data.width * self.tmx_data.tilewidth
-        altura_mapa_pixels = self.tmx_data.height * self.tmx_data.tileheight
+        self.largura_mapa_pixels = self.tmx_data.width * self.tmx_data.tilewidth
+        self.altura_mapa_pixels = self.tmx_data.height * self.tmx_data.tileheight
 
-        self.map_surface = pygame.Surface((largura_mapa_pixels, altura_mapa_pixels))
-        self.map_surface = pygame.transform.scale(self.map_surface, (5000, 5000)
-        )
+        self.map_surface = pygame.Surface((self.largura_mapa_pixels, self.altura_mapa_pixels))
         self.renderizar_mapa()
 
     def renderizar_mapa(self):

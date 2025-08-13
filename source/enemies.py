@@ -129,7 +129,7 @@ class InimigoListaIP(InimigoBase):
 
         # Carrega a imagem do inimigo
         self.image = pygame.image.load(join('assets', 'img', 'inimigo_listaIP.png')).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (100, 100))
+        self.image = pygame.transform.scale(self.image, (100, 80))
         self.rect = self.image.get_rect(center=self.posicao)
 
         

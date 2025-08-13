@@ -37,7 +37,6 @@ class Game:
         #buff
         self.buff = False
         #mapa
-        #self.mapa = Mapa(join('assets', 'map', 'mapa_cin.tmx'))
         self.hordas_contagem = 0
     def run(self):
         while self.running:
@@ -139,8 +138,8 @@ class Game:
         elif self.estado_do_jogo == 'jogando':
             #desenha mapa
             self.tela.fill('black')
-            #deslocamento = self.all_sprites.deslocamento
-            #self.mapa.draw(self.tela, deslocamento)
+            deslocamento = self.all_sprites.deslocamento
+            self.mapa.draw(self.tela, deslocamento)
 
             self.all_sprites.draw(self.player.posicao)
             self.hud.draw(self.tela)
@@ -177,8 +176,9 @@ class Game:
         self.intervalo_minimo = 0.3
         self.fator_dificuldade = 0.05
 
-        #Mapa(self.all_sprites)
+        self.mapa = Mapa(all_sprites=self.all_sprites)
         self.player = Player(
+            posicao_inicial=(self.mapa.largura_mapa_pixels / 2, self.mapa.altura_mapa_pixels),
             sheet_player=join('assets', 'img', 'player.png'),
             grupos=self.all_sprites
         )

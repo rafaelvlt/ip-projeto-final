@@ -7,10 +7,10 @@ from abc import ABC, abstractmethod
 largura_tela = 1280
 altura_tela = 960
 
-LARGURA_MAPA = 4992
-ALTURA_MAPA = 4992
-TILE_LARGURA = 16
-TILE_ALTURA = 16
+LARGURA_MAPA = 15360 
+ALTURA_MAPA = 10240 
+TILE_LARGURA = 30
+TILE_ALTURA = 20
 
 fps = 60
 cores = {
