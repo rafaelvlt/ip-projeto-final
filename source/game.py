@@ -138,8 +138,9 @@ class Game:
         elif self.estado_do_jogo == 'jogando':
             #desenha mapa
             self.tela.fill('black')
-            deslocamento = self.all_sprites.deslocamento
+            deslocamento = self.mapa.get_camera_offset(self.player.posicao, (largura_tela, altura_tela))
             self.mapa.draw(self.tela, deslocamento)
+
 
             self.all_sprites.draw(self.player.posicao)
             self.hud.draw(self.tela)
