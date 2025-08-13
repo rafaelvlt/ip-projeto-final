@@ -26,7 +26,8 @@ class Player(pygame.sprite.Sprite):
         #status
         self.vida_maxima = 100
         self.vida_atual = self.vida_maxima
-        
+        self.buff_timer = 0
+        self.buff_cooldown_ativo = False 
         #exp
         self.contador_niveis = 1
         self.experiencia_level_up_base = 100 
@@ -90,10 +91,30 @@ class Player(pygame.sprite.Sprite):
         self.pontuacao += 100
         self.contador_niveis += 1
 
+    def adicionar_tempo_buff(self, segundos):
+        self.buff_timer += segundos
+
     def update(self, delta_time):
         self.input()
         self.movimentacao(delta_time)
         self.pontuacao = self.experiencia_atual
+
+        if self.buff_timer > 0:
+            self.buff_timer -= delta_time
+            if not self.buff_cooldown_ativo:
+                self.buff_cooldown_ativo = True
+                for arma in self.armas.values():
+                    if hasattr(arma, 'cooldown') and arma.cooldown != float('inf'):
+                        arma.cooldown_original = arma.cooldown
+                        arma.cooldown /= 2
+
+        elif self.buff_timer <= 0 and self.buff_cooldown_ativo:
+            self.buff_timer = 0
+            self.buff_cooldown_ativo = False
+            for arma in self.armas.values():
+                if hasattr(arma, 'cooldown_original'):
+                    arma.cooldown = arma.cooldown_original
+
         if self.invencivel:
             agora = pygame.time.get_ticks()
             if agora - self.tempo_ultimo_dano > self.duracao_invencibilidade:
@@ -104,7 +125,8 @@ class Player(pygame.sprite.Sprite):
             self.image.set_alpha(alpha)
         else:
             self.image.set_alpha(255)
-            
+        
+
         if self.experiencia_atual >= self.experiencia_level_up:
             self.level_up()
 
