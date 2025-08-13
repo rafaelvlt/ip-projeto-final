@@ -5,7 +5,7 @@ from settings import *
 from player import Player 
 from menu import *
 from hud import *
-from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo
+from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo, InimigoPython
 from weapon import Arma_Loop, ArmaLista, Dicionario_Divino
 from grupos import AllSprites
 from colaboradores import TelaColaboradores
@@ -161,9 +161,6 @@ class Game:
         if self.estado_do_jogo == "jogando":
             self.all_sprites.update(delta_time)
             self.tempo_proximo_spawn += delta_time
-            if self.player:
-                for arma in self.player.armas.values():
-                    arma.update(delta_time)
 
             if self.tempo_proximo_spawn >= self.intervalo_spawn_atual:
                 self.tempo_proximo_spawn = 0
