@@ -177,14 +177,14 @@ class ArmaLista(Arma):
 
         self.velocidade_rotacao += 10
         self.dano += 10
-        if self.nivel % 3 == 0:
+        if self.nivel % 2 == 0:
             self.num_listas += 1
 
     def ver_proximo_upgrade(self):
         prox_nivel = self.nivel + 1
         prox_dano = self.dano + 10
         prox_velocidade_rotacao = self.velocidade_rotacao + 5
-        if prox_nivel % 3 == 0:
+        if prox_nivel % 2 == 0:
             prox_listas = self.num_listas + 1
         else:
             prox_listas = self.num_listas
