@@ -26,14 +26,14 @@ class InimigoBase(pygame.sprite.Sprite):
 
         
     def aplicar_dificuldade(self):
-        if 10 >= self.jogador.contador_niveis > 5:
+        if 13 >= self.jogador.contador_niveis > 8:
             self.vida *= self.jogador.contador_niveis / 5
             self.dano *= self.jogador.contador_niveis / 5
-        elif 15 >= self.jogador.contador_niveis > 10:
+        elif 18 >= self.jogador.contador_niveis > 13:
             self.vida *= self.jogador.contador_niveis / 2
             self.dano *= self.jogador.contador_niveis / 2
             self.velocidade *= self.jogador.contador_niveis / 10
-        elif 30 >= self.jogador.contador_niveis > 15:
+        elif 30 >= self.jogador.contador_niveis > 18:
             self.vida *= self.jogador.contador_niveis
             self.dano *= self.jogador.contador_niveis
             self.velocidade *= self.jogador.contador_niveis / 15
@@ -147,8 +147,8 @@ class BossInimigo(InimigoBase):
                 posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
                 Items(posicao=posicao_drop, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
         elif 800 <= chance < 950:
-            chance2 = randint(1,3)
-            if chance2 == 3:
+            chance2 = randint(1,4)
+            if chance2 == 4:
                 Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'cafe.png'), tipo='cafe', grupos=grupos)
             for _ in range(4):
                 posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
