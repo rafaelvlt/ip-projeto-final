@@ -50,6 +50,7 @@ class Player(pygame.sprite.Sprite):
 
         #ranking
         self.pontuacao = 0
+
     def input(self):
         #muda os vetores se eles estão sendo pressionados ou não
         #direita = 1, esquerda = -1, cima = 1, baixo = -1
@@ -127,7 +128,6 @@ class Player(pygame.sprite.Sprite):
     def update(self, delta_time):
         self.input()
         self.movimentacao(delta_time)
-        self.pontuacao = self.experiencia_atual
 
         if self.buff_timer > 0:
             self.buff_timer -= delta_time

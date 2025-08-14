@@ -184,6 +184,17 @@ class Game:
             self.colisao(delta_time)
 
             if self.player.vida_atual <= 0:
+                #atualizacao pos morte para o ranking
+                self.player.pontuacao += self.player.experiencia_atual
+                for tipo, contagem in self.player.coletaveis.items():
+                    if tipo == 'exp_shard':
+                        self.player.pontuacao += contagem
+                    elif tipo == 'big_shard':
+                        self.player.pontuacao += contagem * 2
+                    elif tipo == 'life_orb':
+                        self.player.pontuacao += contagem * 3
+                    elif tipo == 'cafe':
+                        self.player.pontuacao += 10
                 self.estado_do_jogo = 'game_over'
                 pygame.mixer.music.pause()  # pausa a música no game over
 
