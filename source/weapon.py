@@ -483,8 +483,8 @@ class CompanheiroCachorro(pygame.sprite.Sprite):
         spritesheet = pygame.image.load(join('assets', 'img', 'byte.png')).convert_alpha()
         especificacoes_animacao = {
             'sentado': {'linha': 1, 'frames': 8},
-            'andar':   {'linha': 3, 'frames': 8},
-            'correr':  {'linha': 4, 'frames': 8}  
+            'correr':   {'linha': 3, 'frames': 8},
+            'andar':  {'linha': 4, 'frames': 8}  
         }
         self.animacoes = self.fatiar_animacoes(spritesheet, 384, 288, especificacoes_animacao)
 
