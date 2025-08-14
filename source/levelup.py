@@ -153,11 +153,10 @@ class OpcaoDeUpgrade:
         lista_stats_formatada = self.arma.get_estatisticas_para_exibir()
 
         posicao_y_stats = self.rect.y + 80
-        
-        for texto_stat in lista_stats_formatada:
-            desenhar_texto(surface, texto_stat, (self.rect.x + 10, posicao_y_stats), self.fonte_pequena)
-            posicao_y_stats += 25 
-
+        if arma_ja_existe_no_inventario:
+            for texto_stat in lista_stats_formatada:
+                desenhar_texto(surface, texto_stat, (self.rect.x + 10, posicao_y_stats), self.fonte_pequena)
+                posicao_y_stats += 25 
 
 def desenhar_texto(surface, texto, pos, fonte, cor='white'):
     """Função auxiliar para desenhar texto na tela."""
