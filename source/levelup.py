@@ -1,21 +1,28 @@
 import pygame
-
+import random
 from settings import *
-from weapon import Arma
+from weapon import Arma, Arma_Loop, ArmaLista, Dicionario_Divino, ArmaByte
+
+MAX_ARMAS = 6
+TODAS_AS_ARMAS = {
+    "Bolinha Calderânica": Arma_Loop,
+    "Domínio das Lâminas": ArmaLista,
+    "Dicionário Divino": Dicionario_Divino,
+    "Companheiro Byte": ArmaByte,
+}
 
 class TelaDeUpgrade:
-    def __init__(self, tela, jogador):
+    def __init__(self, tela, jogador, game):
+        self.tela = tela
+        self.jogador = jogador
+        self.game = game
+
         self.fonte_grande = pygame.font.Font(None, 20)
         self.fonte_pequena = pygame.font.Font(None, 15)
 
-
-        #lógica para gerar 3 opções de upgrade
-        # TODO: Implementar uma lógica real para escolher 3 upgrades aleatórios e únicos.
-        arma_existente = list(jogador.armas.values())[0]
-        arma_existente_dois = list(jogador.armas.values())[1]
-        arma_existente_tres = list(jogador.armas.values())[2]
-        self.opcoes_de_armas = [arma_existente, arma_existente_dois, arma_existente_tres] 
+        self.opcao_selecionada = 0
         
+
         #cálculo do layout
         largura_painel, altura_painel = 800, 350
         self.painel_rect = pygame.Rect((largura_tela - largura_painel) // 2, (altura_tela - altura_painel) // 2, largura_painel, altura_painel)
@@ -25,13 +32,62 @@ class TelaDeUpgrade:
         largura_opcao = (self.painel_rect.width - padding * 4) // 3
         altura_opcao = self.painel_rect.height - padding * 3 - 50 # Espaço para título
 
-        for i, arma in enumerate(self.opcoes_de_armas):
+
+        self.nomes_das_opcoes = self.gerar_opcoes_aleatorias() 
+        self.opcoes_de_armas_obj = []
+
+        #card de cada arma
+        for i, nome_arma in enumerate(self.nomes_das_opcoes):
+            arma_para_exibir = None
+            
+            if nome_arma in self.jogador.armas:
+                arma_para_exibir = self.jogador.armas[nome_arma]
+            
+            else:
+                classe_arma = TODAS_AS_ARMAS[nome_arma]
+                grupos = ()
+
+                if classe_arma == Arma_Loop:
+                    grupos = (self.game.all_sprites, self.game.projeteis_grupo, self.game.inimigos_grupo)
+                
+                elif classe_arma == ArmaLista:
+                    grupos = (self.game.all_sprites, self.game.projeteis_grupo)
+                
+                elif classe_arma == Dicionario_Divino:
+                    grupos = (self.game.all_sprites, self.game.auras_grupo)
+                
+                elif classe_arma == ArmaByte:
+                    grupos = (self.game.all_sprites, self.game.inimigos_grupo, self.game.item_group)
+
+
+                arma_para_exibir = classe_arma(self.jogador, grupos, self.game)
+            
+            self.opcoes_de_armas_obj.append(arma_para_exibir)
+
+            # O resto da criação dos cards continua igual
             posicao_x = self.painel_rect.x + padding + i * (largura_opcao + padding)
             posicao_y = self.painel_rect.y + padding + 50
             retangulo_opcao = pygame.Rect(posicao_x, posicao_y, largura_opcao, altura_opcao)
-            self.opcoes.append(OpcaoDeUpgrade(arma, retangulo_opcao))
+            self.opcoes.append(OpcaoDeUpgrade(arma_para_exibir, retangulo_opcao))
 
-        self.opcao_selecionada = 0
+    def gerar_opcoes_aleatorias(self):
+        pool_de_nomes = []
+        armas_do_jogador = list(self.jogador.armas.values())
+
+        for arma in armas_do_jogador:
+            pool_de_nomes.append(arma.nome)
+
+        #armas novas
+        if len(self.jogador.armas) < MAX_ARMAS:
+            nomes_armas_possuidas = {arma.nome for arma in armas_do_jogador}
+            for nome_arma in TODAS_AS_ARMAS.keys():
+                if nome_arma not in nomes_armas_possuidas:
+                    pool_de_nomes.append(nome_arma)
+                    
+
+        num_opcoes = min(3, len(pool_de_nomes))
+        return random.sample(pool_de_nomes, num_opcoes) if num_opcoes > 0 else []
+
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -77,20 +133,28 @@ class OpcaoDeUpgrade:
         pygame.draw.rect(surface, cor_borda, self.rect, 3, border_radius=8)
 
         #exibe o nome e o nível da arma
-        nome_arma = self.arma.nome if hasattr(self.arma, 'nome') else "Arma Desconhecida"
-        nivel_arma = self.arma.nivel
-        desenhar_texto(surface, f"{nome_arma} - Nv. {nivel_arma}", (self.rect.x + 10, self.rect.y + 10), self.fonte_grande)
+        nome_arma = self.arma.nome
+        nivel_atual = self.arma.nivel
 
-        #exibe uma descrição
-        descricao = self.arma.descricao if hasattr(self.arma, 'descricao') else "Melhora esta arma."
+        stats_futuros = self.arma.ver_proximo_upgrade()
+
+        arma_ja_existe_no_inventario = nome_arma in self.arma.jogador.armas
+        if arma_ja_existe_no_inventario:
+            titulo = f"{nome_arma} - Nv. {nivel_atual} -> {stats_futuros['nivel']}"
+        else:
+            titulo = f"{nome_arma} - NOVA!"
+
+        desenhar_texto(surface, titulo, (self.rect.x + 10, self.rect.y + 10), self.fonte_grande)
+
+        descricao = self.arma.descricao
         desenhar_texto(surface, descricao, (self.rect.x + 10, self.rect.y + 40), self.fonte_pequena)
 
         #pega estatisticas da arma agora e futura
-        lista_stas = self.arma.get_estatisticas_para_exibir()
+        lista_stats_formatada = self.arma.get_estatisticas_para_exibir()
 
         posicao_y_stats = self.rect.y + 80
         
-        for texto_stat in lista_stas:
+        for texto_stat in lista_stats_formatada:
             desenhar_texto(surface, texto_stat, (self.rect.x + 10, posicao_y_stats), self.fonte_pequena)
             posicao_y_stats += 25 
 

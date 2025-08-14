@@ -2,7 +2,6 @@ import pygame
 import math
 from settings import *
 from player import *
-from game import *
 
 class Arma(ABC):
     def __init__(self, jogador):
@@ -30,6 +29,12 @@ class Arma(ABC):
     
     def upgrade(self):
         self.nivel += 1 
+    
+    def equipar(self):
+        """
+        apenas para aura e companheiros
+        """
+        pass 
     
     @abstractmethod
     def ver_proximo_upgrade(self):
@@ -322,14 +327,18 @@ class Dicionario_Divino(Arma):
         self.dano_por_segundo = 1
         self.raio = 120
         self.cooldown = float('inf') 
+        self.all_sprites, self.auras_grupos = grupos
 
-
-        self.area_de_dano = Projetil_Area(
-            jogador=self.jogador,
-            raio=self.raio,
-            dano_por_segundo=self.dano_por_segundo,
-            grupos=(grupos[0], grupos[1])
-        )
+        self.area_de_dano = None
+    def equipar(self):
+        if self.area_de_dano is None:
+            print("Equipando Dicionário Divino e criando sua aura!")
+            self.area_de_dano = Projetil_Area(
+                jogador=self.jogador,
+                raio=self.raio,
+                dano_por_segundo=self.dano_por_segundo,
+                grupos=(self.all_sprites, self.auras_grupos)
+            )
 
     def disparar(self):
       
@@ -342,12 +351,11 @@ class Dicionario_Divino(Arma):
     def upgrade(self):
         super().upgrade() # Aumenta self.nivel
 
-   
-        self.dano_por_segundo += 1
-        self.raio += 15
+        if self.area_de_dano:
+            self.dano_por_segundo += 1
+            self.raio += 15
 
-
-        self.area_de_dano.atualizar_stats(self.raio, self.dano_por_segundo)
+            self.area_de_dano.atualizar_stats(self.raio, self.dano_por_segundo)
 
     def ver_proximo_upgrade(self):
         return {
@@ -416,9 +424,17 @@ class ArmaByte(Arma):
         self.dano = 20
         self.cooldown = float('inf')
 
-       
-        self.sprite_cachorro = CompanheiroCachorro(jogador, [self.all_sprites], self.inimigos_grupo, self.item_grupo)
-        self.sprite_cachorro.dano = self.dano 
+        self.sprite_cachorro = None
+        #self.sprite_cachorro = CompanheiroCachorro(jogador, [self.all_sprites], self.inimigos_grupo, self.item_grupo)
+        #self.sprite_cachorro.dano = self.dano 
+    def equipar(self):
+        if self.sprite_cachorro is None:
+            self.sprite_cachorro = CompanheiroCachorro(
+                jogador=self.jogador,
+                grupos=self.all_sprites, # Adiciona ao all_sprites
+                inimigos_grupo=self.inimigos_grupo,
+                item_grupo=self.item_grupo
+            )
 
     def disparar(self):
         
@@ -437,23 +453,49 @@ class ArmaByte(Arma):
         self.sprite_cachorro.raio_deteccao_item += 20
     
     def ver_proximo_upgrade(self):
+
+        if self.sprite_cachorro:
+            velocidade_atual = self.sprite_cachorro.velocidade_correr
+            raio_ini_atual = self.sprite_cachorro.raio_deteccao_inimigo
+            raio_item_atual = self.sprite_cachorro.raio_deteccao_item
+        else:
+            velocidade_atual = 450 
+            raio_ini_atual = 300   
+            raio_item_atual = 200  
+
+
+        prox_nivel = self.nivel + 1
+        prox_dano = self.dano + 10
+        prox_velocidade = velocidade_atual * 1.2
+        prox_raio_ini = raio_ini_atual + 20
+        prox_raio_item = raio_item_atual + 20
+
         return {
-            'nivel': self.nivel + 1,
-            'dano': self.dano + 10,
-            'velocidade': self.sprite_cachorro.velocidade_correr * 1.2,
-            'raio_inimigo': self.sprite_cachorro.raio_deteccao_inimigo + 20,
-            'raio_item': self.sprite_cachorro.raio_deteccao_item + 20
+            'nivel': prox_nivel,
+            'dano': prox_dano,
+            'velocidade': prox_velocidade,
+            'raio_inimigo': prox_raio_ini,
+            'raio_item': prox_raio_item
         }
 
     def get_estatisticas_para_exibir(self):
         prox = self.ver_proximo_upgrade()
+        
+        if self.sprite_cachorro:
+            velocidade_atual = self.sprite_cachorro.velocidade_correr
+            raio_ini_atual = self.sprite_cachorro.raio_deteccao_inimigo
+            raio_item_atual = self.sprite_cachorro.raio_deteccao_item
+        else:
+            velocidade_atual = 450
+            raio_ini_atual = 300
+            raio_item_atual = 200
+
         return [
             f"Dano: {self.dano} -> {prox['dano']}",
-            f'Vel: {self.sprite_cachorro.velocidade_correr} -> {prox['velocidade']}',
-            f"Raio Ini.: {self.sprite_cachorro.raio_deteccao_inimigo} -> {prox['raio_inimigo']}",
-            f"Raio Itens: {self.sprite_cachorro.raio_deteccao_item} -> {prox['raio_item']}"
+            f"Velocidade: {int(velocidade_atual)} -> {int(prox['velocidade'])}",
+            f"Raio Inimigo: {raio_ini_atual} -> {prox['raio_inimigo']}",
+            f"Raio Item: {raio_item_atual} -> {prox['raio_item']}"
         ] 
-
 class CompanheiroCachorro(pygame.sprite.Sprite):
     def __init__(self, jogador, grupos, inimigos_grupo, item_grupo):
         super().__init__(grupos)

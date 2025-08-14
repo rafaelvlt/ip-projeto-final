@@ -128,12 +128,21 @@ class Game:
             elif self.estado_do_jogo == 'level_up':
                 if self.tela_de_upgrade_ativa:
                     escolha_idx = self.tela_de_upgrade_ativa.handle_event(evento)
-                    if escolha_idx is not None:
-                        arma_escolhida = self.tela_de_upgrade_ativa.opcoes_de_armas[escolha_idx]
-                        arma_escolhida.upgrade()
+           
+                    if escolha_idx is not None and escolha_idx < len(self.tela_de_upgrade_ativa.opcoes_de_armas_obj):
+                        arma_escolhida = self.tela_de_upgrade_ativa.opcoes_de_armas_obj[escolha_idx]
+                        nome_da_arma = arma_escolhida.nome
                         
-                        self.estado_do_jogo = 'jogando' # Volta para o jogo
-                        self.tela_de_upgrade_ativa = None # Limpa a tela de upgrade
+                        #upgrade em arma no inventario
+                        if nome_da_arma in self.player.armas:
+                            self.player.armas[nome_da_arma].upgrade()
+                        #nova arma
+                        else:
+                            self.player.armas[nome_da_arma] = arma_escolhida 
+                            arma_escolhida.equipar()
+                        
+                        self.estado_do_jogo = 'jogando'
+                        self.tela_de_upgrade_ativa = None
             
             #tela de colaboradores
             elif self.estado_do_jogo == 'colaboradores':
@@ -199,19 +208,19 @@ class Game:
                 pygame.mixer.music.pause()  # pausa a música no game over
 
     def draw(self):
+        self.tela.fill('black')
         if self.estado_do_jogo == "menu_principal":
             self.menu_principal.draw(self.tela)
 
         elif self.estado_do_jogo == 'jogando':
             #desenha mapa
-            self.tela.fill('black')
             deslocamento = self.mapa.get_camera_offset(self.player.posicao, (largura_tela, altura_tela))
             self.mapa.draw(self.tela, deslocamento)
             self.all_sprites.draw(self.player.posicao)
             self.hud.draw(self.tela)
 
         elif self.estado_do_jogo == 'pausa':
-            self.tela.fill('black')
+            
             self.all_sprites.draw(self.player.posicao)
             self.menu_pausa.draw(self.tela)
 
@@ -262,28 +271,29 @@ class Game:
         if not hasattr(self.player, 'armas'):
             self.player.armas = {}
 
+        #arma inicial
         arma_Loop = Arma_Loop(
             jogador=self.player,
             grupos=(self.all_sprites, self.projeteis_grupo, self.inimigos_grupo),
             game=self
         )
 
-        arma_listas = ArmaLista(jogador=self.player,
-                                grupos=(self.all_sprites, self.projeteis_grupo),
-                                game=self)
+        #arma_listas = ArmaLista(jogador=self.player,
+                                #grupos=(self.all_sprites, self.projeteis_grupo),
+                                #game=self)
                         
-        arma_dicionario = Dicionario_Divino(jogador=self.player,
-                     grupos=(self.all_sprites, self.auras_grupo),
-                     game=self)
-        arma_byte = ArmaByte(
-    jogador=self.player,
-    grupos=(self.all_sprites, self.inimigos_grupo, self.item_group),
-    game=self)
+        #arma_dicionario = Dicionario_Divino(jogador=self.player,
+                     #grupos=(self.all_sprites, self.auras_grupo),
+                     #game=self)
+        #arma_byte = ArmaByte(
+    #jogador=self.player,
+    #grupos=(self.all_sprites, self.inimigos_grupo, self.item_group),
+    #game=self)
 
-        self.player.armas['Laço'] = arma_Loop
-        self.player.armas['Listas'] = arma_listas
-        self.player.armas['Nova'] = arma_dicionario
-        self.player.armas['Byte'] = arma_byte
+        self.player.armas[arma_Loop.nome] = arma_Loop
+        #self.player.armas['Listas'] = arma_listas
+        #self.player.armas['Nova'] = arma_dicionario
+        #self.player.armas['Byte'] = arma_byte
 
         self.estado_do_jogo = 'jogando'
     
@@ -329,7 +339,7 @@ class Game:
             if self.player.coletar_item(item):
                     self.estado_do_jogo = 'level_up'
                     self.player.level_up()
-                    self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
+                    self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player, self)
                 
 
         # Colisão com inimigos
