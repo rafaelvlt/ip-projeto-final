@@ -33,7 +33,11 @@ class InimigoBase(pygame.sprite.Sprite):
             self.vida *= self.jogador.contador_niveis / 2
             self.dano *= self.jogador.contador_niveis / 2
             self.velocidade *= self.jogador.contador_niveis / 10
-        elif self.jogador.contador_niveis > 15:
+        elif 30 >= self.jogador.contador_niveis > 15:
+            self.vida *= self.jogador.contador_niveis
+            self.dano *= self.jogador.contador_niveis
+            self.velocidade *= self.jogador.contador_niveis / 15
+        elif self.jogador.contador_niveis > 30:
             self.constante_lategame = self.jogador.contador_niveis - 15
             self.vida *= self.constante_lategame * (self.jogador.contador_niveis)
             self.dano *= self.constante_lategame * (self.jogador.contador_niveis)
@@ -136,10 +140,27 @@ class BossInimigo(InimigoBase):
         InimigoErro(posicao=self.posicao, grupos=self.grupos_gerais, jogador=self.jogador)
 
     def morrer(self, grupos):
-        Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'cafe.png'), tipo='cafe', grupos=grupos)
-        for _ in range(5):
-            posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
-            Items(posicao=posicao_drop, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
+        chance= randint(1,1000)
+        if chance >= 950:
+            Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'cafe.png'), tipo='cafe', grupos=grupos)
+            for _ in range(5):
+                posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
+                Items(posicao=posicao_drop, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
+        elif 800 <= chance < 950:
+            chance2 = randint(1,3)
+            if chance2 == 3:
+                Items(posicao=self.posicao, sheet_item=join('assets', 'img', 'cafe.png'), tipo='cafe', grupos=grupos)
+            for _ in range(4):
+                posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
+                Items(posicao=posicao_drop, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
+        elif 500 <= chance < 800:
+            for _ in range(3):
+                posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
+                Items(posicao=posicao_drop, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
+        else:
+            for _ in range(2):
+                posicao_drop = self.posicao + pygame.math.Vector2(randint(-30, 30), randint(-30, 30))
+                Items(posicao=posicao_drop, sheet_item=join('assets', 'img', 'bigShard.png'), tipo='big_shard', grupos=grupos)
         self.kill()
 
     def update(self, delta_time):
@@ -195,7 +216,7 @@ class InimigoPython(InimigoBase):
 
 class InimigoLadrao(InimigoBase):
     def __init__(self, posicao, grupos, jogador):
-        super().__init__(posicao, grupos, jogador)
+        super().__init__(posicao, grupos, jogador, vida_base= 25, dano_base=1, velocidade_base=300)
         spritesheet = pygame.image.load(join('assets', 'img', 'ladrao.png'))
         self.image = pygame.transform.scale(spritesheet, (600, 600))
         self.animacoes = self.fatiar_spritesheet(self.image)
@@ -205,9 +226,6 @@ class InimigoLadrao(InimigoBase):
         self.ultimo_update_animacao = pygame.time.get_ticks()
         self.image = self.animacoes[self.estado_animacao][self.frame_atual]
         self.rect = self.image.get_rect(center=posicao)
-        self.velocidade = 300
-        self.vida = 50
-        self.dano = 50
 
     def fatiar_spritesheet(self, sheet):
         largura_frame = 150

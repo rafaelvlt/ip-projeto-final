@@ -2,7 +2,6 @@ import pygame
 import os
 from os.path import join
 from settings import *  # largura_tela, altura_tela, fps
-
 # ------------------- MENUS -------------------
 
 class MenuPrincipal:
