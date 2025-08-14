@@ -5,10 +5,10 @@ from weapon import Arma, Arma_Loop, ArmaLista, Dicionario_Divino, ArmaByte
 
 MAX_ARMAS = 6
 TODAS_AS_ARMAS = {
-    "Bolinha Calderânica": Arma_Loop,
-    "Domínio das Lâminas": ArmaLista,
+    "Bola Calderânica": Arma_Loop,
+    "Ciclo de Lâminas": ArmaLista,
     "Dicionário Divino": Dicionario_Divino,
-    "Companheiro Byte": ArmaByte,
+    "Cão Byte": ArmaByte,
 }
 
 class TelaDeUpgrade:

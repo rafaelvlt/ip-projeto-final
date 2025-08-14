@@ -62,11 +62,11 @@ class Arma_Loop(Arma):
 
         #específicos da arma
         self.nivel = 1
-        self.dano = 1
+        self.dano = 5
         self.velocidade = 1500
         self.cooldown = 1500
         self.rebatidas = 2
-        self.nome = "Bolinha Calderânica"
+        self.nome = "Bola Calderânica"
         self.descricao = """Capaz de rebater nas paredes!"""
         
 
@@ -106,34 +106,25 @@ class Arma_Loop(Arma):
         #a cada 3 niveis fica mais rapido
 
         self.rebatidas += 1
-        self.dano += 1
-        if self.nivel % 3 == 0 and self.cooldown > 250:
-            self.cooldown -= 250
+        self.dano += 5
 
     def ver_proximo_upgrade(self):
         prox_nivel = self.nivel + 1
         prox_dano = self.dano + 1
         prox_rebatidas = self.rebatidas + 1
-        if prox_nivel % 3 == 0 and self.cooldown > 250:
-            prox_cooldown = (self.cooldown - 250)
-        else:
-            prox_cooldown = self.cooldown
 
         return {
             'nivel': prox_nivel,
             'dano': prox_dano,
             'rebatidas': prox_rebatidas,
-            'cooldown': prox_cooldown
         }
     def get_estatisticas_para_exibir(self):
         stats_futuros = self.ver_proximo_upgrade()
-        cadencia_atual = 1000 / self.cooldown
-        cadencia_futura = 1000 / stats_futuros['cooldown']
+
 
         stats_formatados = [
             f"Dano: {self.dano} -> {stats_futuros['dano']}",
             f"Rebotes: {self.rebatidas} -> {stats_futuros['rebatidas']}",
-            f"Cadência: {cadencia_atual:.2f}/s -> {cadencia_futura:.2f}/s"
         ]
 
         return stats_formatados
@@ -151,11 +142,11 @@ class ArmaLista(Arma):
         self.projeteis_grupo = grupos[1]
 
         #específicos da arma
-        self.nome = "Domínio das Lâminas"
+        self.nome = "Ciclo de Lâminas"
         self.descricao = "Protegem o jogador!"
         self.nivel = 1
         self.num_listas = 1
-        self.dano = 15
+        self.dano = 30
         self.velocidade = 0
         self.cooldown = 5000
         self.duracao = 4000
@@ -184,14 +175,14 @@ class ArmaLista(Arma):
         super().upgrade()
         #a cada 3 niveis fica mais rapido
 
-        self.velocidade_rotacao += 5
-        self.dano += 5
+        self.velocidade_rotacao += 10
+        self.dano += 10
         if self.nivel % 3 == 0:
             self.num_listas += 1
 
     def ver_proximo_upgrade(self):
         prox_nivel = self.nivel + 1
-        prox_dano = self.dano + 5
+        prox_dano = self.dano + 10
         prox_velocidade_rotacao = self.velocidade_rotacao + 5
         if prox_nivel % 3 == 0:
             prox_listas = self.num_listas + 1
@@ -332,7 +323,6 @@ class Dicionario_Divino(Arma):
         self.area_de_dano = None
     def equipar(self):
         if self.area_de_dano is None:
-            print("Equipando Dicionário Divino e criando sua aura!")
             self.area_de_dano = Projetil_Area(
                 jogador=self.jogador,
                 raio=self.raio,
@@ -417,7 +407,7 @@ class ArmaByte(Arma):
         self.all_sprites, self.inimigos_grupo, self.item_grupo = grupos
 
         # atributos da arma
-        self.nome = "Companheiro Byte"
+        self.nome = "Cão Byte"
         self.descricao = "Ataca inimigos e coleta itens"
         self.nivel = 1
         self.nivel_maximo = 8
@@ -435,6 +425,7 @@ class ArmaByte(Arma):
                 inimigos_grupo=self.inimigos_grupo,
                 item_grupo=self.item_grupo
             )
+            self.sprite_cachorro.dano = self.dano 
 
     def disparar(self):
         

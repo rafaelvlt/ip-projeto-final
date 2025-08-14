@@ -250,7 +250,7 @@ class Game:
         self.intervalo_spawn_inicial = 2.0
         self.intervalo_spawn_atual = self.intervalo_spawn_inicial
         self.intervalo_minimo = 0.3
-        self.fator_dificuldade = 0.05
+        self.fator_dificuldade = 0.04
 
         self.mapa = Mapa(all_sprites=self.all_sprites)
         self.player = Player(
