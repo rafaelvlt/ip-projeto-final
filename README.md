@@ -1,4 +1,3 @@
-#ip-projeto-final
 ## IPocalipse CIn-vivors
 
 > Um jogo de ação e sobrevivência no estilo *bullet heaven*, onde um estudante de Introdução à Programação deve lutar contra hordas de bugs, erros e outros desafios do periodo para sobreviver até o/a final.
