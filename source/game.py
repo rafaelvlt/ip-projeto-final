@@ -6,7 +6,7 @@ from player import Player
 from menu import *
 from hud import *
 from enemies import InimigoBug, InimigoListaIP, InimigoErro, BossInimigo, InimigoLadrao, InimigoPython
-from weapon import Arma_Loop, ArmaLista, Dicionario_Divino
+from weapon import Arma_Loop, ArmaLista, Dicionario_Divino, ArmaByte
 from grupos import AllSprites
 from colaboradores import TelaColaboradores
 from ranking import Ranking 
@@ -264,10 +264,15 @@ class Game:
         arma_dicionario = Dicionario_Divino(jogador=self.player,
                      grupos=(self.all_sprites, self.auras_grupo),
                      game=self)
+        arma_byte = ArmaByte(
+    jogador=self.player,
+    grupos=(self.all_sprites, self.inimigos_grupo, self.item_group),
+    game=self)
 
         self.player.armas['Laço'] = arma_Loop
         self.player.armas['Listas'] = arma_listas
         self.player.armas['Nova'] = arma_dicionario
+        self.player.armas['Byte'] = arma_byte
 
         self.estado_do_jogo = 'jogando'
     
@@ -308,23 +313,13 @@ class Game:
 
     def colisao(self, delta_time):
         # Coleta de itens
-        colisao_items = pygame.sprite.spritecollide(self.player, self.item_group, dokill=True)
-        for item in colisao_items:
-            if item.tipo in self.player.coletaveis:
-                self.player.coletaveis[item.tipo] += 1
-                # Adiciona efeitos específicos
-                if item.tipo in ['exp_shard', 'big_shard']:
-                    self.player.experiencia_atual += 10 if item.tipo == 'exp_shard' else 50
-                    if self.player.experiencia_atual >= self.player.experiencia_level_up:
-                        self.player.experiencia_atual -= self.player.experiencia_level_up
-                        self.estado_do_jogo = 'level_up'
-                        self.player.level_up()
-                        self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
-                elif item.tipo == 'life_orb':
-                    self.player.vida_atual = min(self.player.vida_atual + self.player.vida_maxima / 4, self.player.vida_maxima)
-                elif item.tipo == 'cafe':
-                    self.player.vida_atual = self.player.vida_maxima
-                    self.player.adicionar_tempo_buff(10)
+        itens_coletados = pygame.sprite.spritecollide(self.player, self.item_group, dokill=True)
+        for item in itens_coletados:
+            if self.player.coletar_item(item):
+                    self.estado_do_jogo = 'level_up'
+                    self.player.level_up()
+                    self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player)
+                
 
         # Colisão com inimigos
         colisao_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)

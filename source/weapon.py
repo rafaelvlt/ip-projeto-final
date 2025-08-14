@@ -61,7 +61,6 @@ class Arma_Loop(Arma):
         self.velocidade = 1500
         self.cooldown = 1500
         self.rebatidas = 2
-        self.cronometro_buff = 0
         self.nome = "Bolinha Calderânica"
         self.descricao = """Capaz de rebater nas paredes!"""
         
@@ -72,10 +71,6 @@ class Arma_Loop(Arma):
         #se não houver inimigos, não atira
         if not self.grupo_inimigos:
             return
-        if self.game.buff == True:
-            if self.cronometro_buff > 30000:
-                self.cooldown *= 2
-                self.game.buff = False
         
         inimigo_mais_proximo = self.grupo_inimigos.sprites()[0]
         menor_distancia = self.jogador.posicao.distance_to(inimigo_mais_proximo.posicao)
@@ -404,3 +399,199 @@ class Projetil_Area(pygame.sprite.Sprite):
 
     def update(self, delta_time):
         self.rect.center = self.jogador.posicao
+
+class ArmaByte(Arma):
+    def __init__(self, jogador, grupos, game):
+        super().__init__(jogador=jogador)
+        self.game = game 
+        
+        
+        self.all_sprites, self.inimigos_grupo, self.item_grupo = grupos
+
+        # atributos da arma
+        self.nome = "Companheiro Byte"
+        self.descricao = "Ataca inimigos e coleta itens"
+        self.nivel = 1
+        self.nivel_maximo = 8
+        self.dano = 20
+        self.cooldown = float('inf')
+
+       
+        self.sprite_cachorro = CompanheiroCachorro(jogador, [self.all_sprites], self.inimigos_grupo, self.item_grupo)
+        self.sprite_cachorro.dano = self.dano 
+
+    def disparar(self):
+        
+        pass
+
+    def update(self, delta_time):
+        
+        pass
+
+    def upgrade(self):
+        super().upgrade()
+        self.dano += 10
+        self.sprite_cachorro.dano = self.dano 
+        self.sprite_cachorro.velocidade_correr *= 1.2
+        self.sprite_cachorro.raio_deteccao_inimigo += 20
+        self.sprite_cachorro.raio_deteccao_item += 20
+    
+    def ver_proximo_upgrade(self):
+        return {
+            'nivel': self.nivel + 1,
+            'dano': self.dano + 10,
+            'velocidade': self.sprite_cachorro.velocidade_correr * 1.2,
+            'raio_inimigo': self.sprite_cachorro.raio_deteccao_inimigo + 20,
+            'raio_item': self.sprite_cachorro.raio_deteccao_item + 20
+        }
+
+    def get_estatisticas_para_exibir(self):
+        prox = self.ver_proximo_upgrade()
+        return [
+            f"Dano: {self.dano} -> {prox['dano']}",
+            f'Vel: {self.sprite_cachorro.velocidade_correr} -> {prox['velocidade']}',
+            f"Raio Ini.: {self.sprite_cachorro.raio_deteccao_inimigo} -> {prox['raio_inimigo']}",
+            f"Raio Itens: {self.sprite_cachorro.raio_deteccao_item} -> {prox['raio_item']}"
+        ] 
+
+class CompanheiroCachorro(pygame.sprite.Sprite):
+    def __init__(self, jogador, grupos, inimigos_grupo, item_grupo):
+        super().__init__(grupos)
+        self.jogador = jogador
+        self.inimigos_grupo = inimigos_grupo
+        self.item_group = item_grupo
+        
+   
+        self.estado_logico = 'SEGUINDO' # SEGUINDO, ATACANDO, COLETANDO
+        self.alvo = None
+        self.direcao_movimento = pygame.math.Vector2()
+
+        # Atributos de Comportamento
+        self.velocidade_andar = 220
+        self.velocidade_correr = 450
+        self.raio_deteccao_inimigo = 300
+        self.raio_deteccao_item = 200
+        self.distancia_seguidor = 100 
+        self.dano = 0 
+        self.cooldown = 500 
+        self.ultimo_dano = {} 
+
+        #inatividade
+        self.tempo_jogador_parado = 0.0 
+        self.limite_tempo_para_sentar = 2.0
+        #animacao
+        spritesheet = pygame.image.load(join('assets', 'img', 'byte.png')).convert_alpha()
+        especificacoes_animacao = {
+            'sentado': {'linha': 1, 'frames': 8},
+            'andar':   {'linha': 3, 'frames': 8},
+            'correr':  {'linha': 4, 'frames': 8}  
+        }
+        self.animacoes = self.fatiar_animacoes(spritesheet, 384, 288, especificacoes_animacao)
+
+        self.estado_animacao = 'andar' # 'andar' ou 'correr'
+        self.direcao_rosto = 'esquerda'
+        self.frame_atual = 0
+        self.velocidade_animacao = 150
+        self.ultimo_update_anim = pygame.time.get_ticks()
+        
+        self.image = self.animacoes[self.estado_animacao][self.frame_atual]
+        self.rect = self.image.get_rect(center = self.jogador.posicao + pygame.math.Vector2(0, self.distancia_seguidor))
+        self.posicao = pygame.math.Vector2(self.rect.center)
+
+
+    def fatiar_animacoes(self, sheet, largura_frame, altura_frame, especificacoes):
+        animacoes = {}
+        for nome_animacao, dados in especificacoes.items():
+            frames = []
+            for i in range(dados['frames']):
+                frame = sheet.subsurface(pygame.Rect(i * largura_frame, dados['linha'] * altura_frame, largura_frame, altura_frame))
+                # escala cada frame individualmente
+                frame_escalado = pygame.transform.scale(frame, (384/2, 288/2))
+                frames.append(frame_escalado)
+            animacoes[nome_animacao] = frames
+        return animacoes
+
+    def logica_de_decisao(self):
+    
+        #1. ataca inimigo
+        inimigo_alvo = self.encontrar_alvo_mais_proximo(self.inimigos_grupo, self.raio_deteccao_inimigo)
+        if inimigo_alvo:
+            self.estado_logico = 'ATACANDO'
+            self.alvo = inimigo_alvo
+            return
+
+        #2. coleta item
+        item_alvo = self.encontrar_alvo_mais_proximo(self.item_group, self.raio_deteccao_item)
+        if item_alvo:
+            self.estado_logico = 'COLETANDO'
+            self.alvo = item_alvo
+            return
+
+        #3. segue o player
+        self.estado_logico = 'SEGUINDO'
+        self.alvo = self.jogador
+    
+    def encontrar_alvo_mais_proximo(self, grupo, raio):
+        sprites_no_raio = [s for s in grupo if self.posicao.distance_to(s.posicao) < raio]
+        if sprites_no_raio:
+            return min(sprites_no_raio, key=lambda s: self.posicao.distance_to(s.posicao))
+        return None
+    
+    def executar_comportamento(self, delta_time):
+       
+        velocidade = 0
+        if self.estado_logico == 'SEGUINDO':
+            self.estado_animacao = 'andar'
+            velocidade = self.velocidade_andar
+            distancia_do_alvo = self.posicao.distance_to(self.alvo.posicao)
+            if distancia_do_alvo < self.distancia_seguidor: 
+                self.direcao_movimento = pygame.math.Vector2() 
+            else:
+                self.direcao_movimento = (self.alvo.posicao - self.posicao).normalize()
+
+        elif self.estado_logico in ['ATACANDO', 'COLETANDO']:
+            self.estado_animacao = 'correr'
+            velocidade = self.velocidade_correr
+            if not self.alvo or not self.alvo.alive():
+                self.direcao_movimento = pygame.math.Vector2()
+                return
+
+            self.direcao_movimento = (self.alvo.posicao - self.posicao).normalize()
+            distancia_do_alvo = self.posicao.distance_to(self.alvo.posicao)
+
+            if distancia_do_alvo < 40: 
+                if self.estado_logico == 'ATACANDO':
+                    agora = pygame.time.get_ticks()
+                    if agora - self.ultimo_dano.get(self.alvo, 0) > self.cooldown:
+                        self.ultimo_dano[self.alvo] = agora
+                        self.alvo.vida -= self.dano
+                elif self.estado_logico == 'COLETANDO':
+                    self.jogador.coletar_item(self.alvo) 
+                    self.alvo.kill()
+        if self.direcao_movimento.x > 0.1:
+            self.direcao_rosto = 'direita'
+        elif self.direcao_movimento.x < -0.1:
+            self.direcao_rosto = 'esquerda'
+   
+        self.posicao += self.direcao_movimento * velocidade * delta_time
+        self.rect.center = (round(self.posicao.x), round(self.posicao.y))
+
+    def animar(self):
+        agora = pygame.time.get_ticks()
+        if agora - self.ultimo_update_anim > self.velocidade_animacao:
+            self.ultimo_update_anim = agora
+            self.frame_atual = (self.frame_atual + 1) % len(self.animacoes[self.estado_animacao])
+            
+            imagem_original = self.animacoes[self.estado_animacao][self.frame_atual]
+            
+            if self.direcao_movimento.x > 0:
+                self.image = pygame.transform.flip(imagem_original, True, False)
+            else:
+                self.image = imagem_original
+            
+            self.rect = self.image.get_rect(center=self.rect.center)
+
+    def update(self, delta_time):
+        self.logica_de_decisao()
+        self.executar_comportamento(delta_time)
+        self.animar()

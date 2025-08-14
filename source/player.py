@@ -72,12 +72,41 @@ class Player(pygame.sprite.Sprite):
             self.vida_atual -= inimigo.dano
             self.invencivel = True
             self.tempo_ultimo_dano = pygame.time.get_ticks()
+    def curar(self, quantidade):
+        self.vida_atual = min(self.vida_atual + quantidade, self.vida_maxima)
+    def coletar_item(self, item):
+        houve_level_up = False
+        
+        if item.tipo in self.coletaveis:
+            self.coletaveis[item.tipo] += 1
+
+        # efeitos
+        if item.tipo == 'exp_shard':
+            if self.ganhar_xp(10): 
+                houve_level_up = True
+        elif item.tipo == 'big_shard':
+            if self.ganhar_xp(50):
+                houve_level_up = True
+        elif item.tipo == 'life_orb':
+            self.curar(25)
+        elif item.tipo == 'cafe':
+            self.vida_atual = self.vida_maxima
+            self.adicionar_tempo_buff(10)
+        
+        return houve_level_up
+    def ganhar_xp(self, quantidade):
+        self.experiencia_atual += quantidade
+        if self.experiencia_atual >= self.experiencia_level_up:
+            return True 
+        return False
 
     def level_up(self):
-        if self.vida_atual + self.vida_maxima/4 < self.vida_maxima:
-            self.vida_atual + self.vida_maxima/4
-        else:
-            self.vida_atual = self.vida_maxima
+        self.experiencia_atual -= self.experiencia_level_up
+        self.contador_niveis += 1
+        self.vida_maxima += 25
+        self.pontuacao += 100
+        self.curar(self.vida_maxima)
+
         if 1 <= self.contador_niveis <= 5:
             self.aumento_xp += 1
         elif 5 < self.contador_niveis <= 10:
@@ -90,10 +119,7 @@ class Player(pygame.sprite.Sprite):
             self.aumento_xp += 4
         
         self.experiencia_level_up = 100 * self.aumento_xp
-        self.vida_maxima += 25
-        self.vida_atual += 25
-        self.pontuacao += 100
-        self.contador_niveis += 1
+
 
     def adicionar_tempo_buff(self, segundos):
         self.buff_timer += segundos
