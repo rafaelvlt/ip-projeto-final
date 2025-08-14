@@ -1,14 +1,15 @@
 import pygame
 from settings import *
-
+from levelup import TelaDeUpgrade
 class Player(pygame.sprite.Sprite):
-    def __init__(self, posicao_inicial, sheet_player, grupos):
+    def __init__(self, posicao_inicial, sheet_player, grupos, game):
         """
         Inicia o jogador.
         sheet_player: Imagem.
         grupos: grupos de sprite
         """
         super().__init__(grupos)
+        self.game = game
         #envolve movimentação
         self.direcao = pygame.math.Vector2()
         self.velocidade = 500
@@ -98,8 +99,7 @@ class Player(pygame.sprite.Sprite):
     def ganhar_xp(self, quantidade):
         self.experiencia_atual += quantidade
         if self.experiencia_atual >= self.experiencia_level_up:
-            return True 
-        return False
+            self.level_up()
 
     def level_up(self):
         self.experiencia_atual -= self.experiencia_level_up
@@ -107,6 +107,9 @@ class Player(pygame.sprite.Sprite):
         self.vida_maxima += 25
         self.pontuacao += 100
         self.curar(self.vida_maxima)
+
+        self.game.estado_do_jogo = 'level_up'
+        self.game.tela_de_upgrade_ativa = TelaDeUpgrade(self.game.tela, self, self.game)
 
         if 1 <= self.contador_niveis <= 5:
             self.aumento_xp += 1

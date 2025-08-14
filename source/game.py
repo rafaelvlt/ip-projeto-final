@@ -256,7 +256,8 @@ class Game:
         self.player = Player(
             posicao_inicial=(self.mapa.largura_mapa_pixels / 2, self.mapa.altura_mapa_pixels),
             sheet_player=join('assets', 'img', 'player.png'),
-            grupos=self.all_sprites
+            grupos=self.all_sprites,
+            game=self
         )
 
         # Certifique que o mixer está inicializado (melhor garantir)
@@ -336,11 +337,7 @@ class Game:
         # Coleta de itens
         itens_coletados = pygame.sprite.spritecollide(self.player, self.item_group, dokill=True)
         for item in itens_coletados:
-            if self.player.coletar_item(item):
-                    self.estado_do_jogo = 'level_up'
-                    self.player.level_up()
-                    self.tela_de_upgrade_ativa = TelaDeUpgrade(self.tela, self.player, self)
-                
+            self.player.coletar_item(item)
 
         # Colisão com inimigos
         colisao_inimigos = pygame.sprite.spritecollide(self.player, self.inimigos_grupo, False)
