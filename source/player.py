@@ -121,7 +121,6 @@ class Player(pygame.sprite.Sprite):
         
         self.experiencia_level_up = 100 * self.aumento_xp
 
-
     def adicionar_tempo_buff(self, segundos):
         self.buff_timer += segundos
 
