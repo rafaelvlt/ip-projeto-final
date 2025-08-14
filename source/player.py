@@ -89,7 +89,7 @@ class Player(pygame.sprite.Sprite):
             if self.ganhar_xp(50):
                 houve_level_up = True
         elif item.tipo == 'life_orb':
-            self.curar(25)
+            self.curar(self.vida_maxima/4)
         elif item.tipo == 'cafe':
             self.vida_atual = self.vida_maxima
             self.adicionar_tempo_buff(10)
