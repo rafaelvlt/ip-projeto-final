@@ -11,14 +11,10 @@ class MenuPrincipal:
         self.bg = pygame.image.load(join('assets', 'img', 'CInMenu.jpeg'))
         self.bg = pygame.transform.scale(self.bg, (largura_tela, altura_tela))
         self.bg_rect = self.bg.get_rect(center=self.game.tela.get_rect().center)
-        self.opcoes = ["Start Game", "Ranking", "Colaboradores", "Sair"]
+        self.opcoes = ["Start Game", "Opções", "Ranking", "Colaboradores", "Sair"]
         self.selecionada = 0
 
-        # Música de fundo
-        self.musica = join('assets', 'sounds', 'musica_menu.ogg')
-        pygame.mixer.music.load(self.musica)
-        pygame.mixer.music.set_volume(0.3)
-        pygame.mixer.music.play(-1)
+
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -27,7 +23,6 @@ class MenuPrincipal:
             elif event.key == pygame.K_s:
                 self.selecionada = (self.selecionada + 1) % len(self.opcoes)
             elif event.key == pygame.K_RETURN:
-                pygame.mixer.music.stop()
                 return self.opcoes[self.selecionada]
         return None
 
@@ -70,7 +65,6 @@ class TelaGameOver:
         self.bg = pygame.image.load(join('assets', 'img', 'game_over.png')).convert_alpha()
         self.bg = pygame.transform.scale(self.bg, (largura_tela, altura_tela))
         self.som = pygame.mixer.Sound(join('assets', 'sounds', 'game_over.wav'))
-        pygame.mixer.music.set_volume(0.3)
         self.som_tocado = False
 
     def draw(self, tela):
@@ -78,88 +72,148 @@ class TelaGameOver:
             self.som.play()
             self.som_tocado = True
         tela.blit(self.bg, (0, 0))
+
+class MenuOpcoes:
+    def __init__(self, game):
+        self.game = game
+        self.font = pygame.font.Font(None, 48)
+
+        self.volumes_disponiveis = [round(i * 0.1, 2) for i in range(11)]
+        try:
+            self.vol_idx_atual = self.volumes_disponiveis.index(self.game.config['volume_musica'])
+        except ValueError:
+            self.vol_idx_atual = 10 
+
+        self.resolucoes = [
+            # Proporção 4:3
+            (800, 600),
+            (1024, 768),
+            (1280, 960),
+            # Proporção 16:9 (Widescreen)
+            (1280, 720), 
+            (1366, 768), 
+            (1600, 900), 
+            (1920, 1080),
+            # Proporção 16:10 (Comum em monitores de PC)
+            (1280, 800),
+            (1440, 900),
+            (1680, 1050)
+        ]
         
-class Game:
-    def __init__(self, tela):
-        self.tela = tela
-        self.clock = pygame.time.Clock()
-        self.running = True
+        try:
+            self.res_idx_atual = self.resolucoes.index(tuple(self.game.config['resolucao']))
+        except ValueError:
+            self.res_idx_atual = self.resolucoes.index((1280, 720))
 
-        self.menu_principal = MenuPrincipal(self)
-        self.menu_pausa = MenuPausa(self)
-        self.tela_game_over = TelaGameOver(self)
-
-        self.estado_do_jogo = "menu_principal"
-        self.colaboradores = None
-
-    def iniciar_novo_jogo(self):
-        self.estado_do_jogo = 'jogando'
-
-    def run(self):
-        while self.running:
-            delta_time = self.clock.tick(fps) / 1000
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-
-                # ---------- MENU PRINCIPAL ----------
-                if self.estado_do_jogo == "menu_principal":
-                    escolha = self.menu_principal.handle_event(event)
-                    if escolha == 'Start Game':
-                        self.iniciar_novo_jogo()
-                    elif escolha == 'Ranking':
-                        self.estado_do_jogo = 'ranking'
-                    elif escolha == 'Colaboradores':
-                        self.colaboradores = Colaboradores(self)
-                        self.estado_do_jogo = 'colaboradores'
-                    elif escolha == 'Sair':
-                        self.running = False
-
-                # ---------- PAUSA ----------
-                elif self.estado_do_jogo == "pausa":
-                    escolha = self.menu_pausa.handle_event(event)
-                    if escolha == "Continuar":
-                        self.estado_do_jogo = "jogando"
-                    elif escolha == "Sair para Menu":
-                        self.estado_do_jogo = "menu_principal"
-                        self.menu_principal = MenuPrincipal(self)
-
-                # ---------- GAME OVER ----------
-                elif self.estado_do_jogo == "game_over":
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                        self.estado_do_jogo = "menu_principal"
-                        self.menu_principal = MenuPrincipal(self)
-
-                # ---------- COLABORADORES ----------
-                elif self.estado_do_jogo == "colaboradores":
-                    action = self.colaboradores.handle_event(event)
-                    if action == 'sair':
-                        self.estado_do_jogo = "menu_principal"
-                        self.menu_principal = MenuPrincipal(self)
-
-            self.draw()
-
-        pygame.quit()
-
-    def draw(self):
-        if self.estado_do_jogo == "menu_principal":
-            self.menu_principal.draw(self.tela)
-        elif self.estado_do_jogo == "jogando":
-            self.tela.fill((0, 0, 0))
-        elif self.estado_do_jogo == "pausa":
-            self.menu_pausa.draw(self.tela)
-        elif self.estado_do_jogo == "game_over":
-            self.tela_game_over.draw(self.tela)
-        elif self.estado_do_jogo == "colaboradores":
-            self.colaboradores.draw(self.tela)
-
-        pygame.display.update()
+        self.opcoes_texto = []
+        self.opcoes_rects = []
+        self.selecionada = 0
+        self.atualizar_textos()
 
 
-if __name__ == "__main__":
-    pygame.init()
-    pygame.mixer.init()
-    tela = pygame.display.set_mode((largura_tela, altura_tela))
-    pygame.display.set_caption("Jogo com Música")
-    game = Game(tela)
-    game.run()
+        self.bg = pygame.image.load(join('assets', 'img', 'CInMenu.jpeg'))
+        self.bg = pygame.transform.scale(self.bg, (largura_tela, altura_tela))
+        self.bg_rect = self.bg.get_rect(center=self.game.tela.get_rect().center)
+        
+    def atualizar_textos(self):
+        """Atualiza o texto das opções para refletir o estado atual."""
+
+        res_txt = f"{self.game.config['resolucao'][0]}x{self.game.config['resolucao'][1]}"
+        tela_cheia_txt = "Ligado" if self.game.config['tela_cheia'] else "Desligado"
+
+        volume_percentual = int(self.game.config['volume_musica'] * 100)
+        musica_txt = f"{volume_percentual}%"
+        if volume_percentual == 0:
+            musica_txt = "Mudo"
+
+
+        self.opcoes_texto = [
+            f"Resolução: < {res_txt} >",
+            f"Tela Cheia: < {tela_cheia_txt} >",
+            f"Volume da Música: < {musica_txt} >",
+            "Salvar e Voltar"
+        ]
+        # Recalcula a posição dos retângulos para o mouse
+        self.opcoes_rects = []
+        for i, texto in enumerate(self.opcoes_texto):
+            txt_surf = self.font.render(texto, True, 'white')
+            pos_x = (LARGURA_LOGICA - txt_surf.get_width()) / 2
+            pos_y = 250 + i * 70
+            self.opcoes_rects.append(txt_surf.get_rect(topleft=(pos_x, pos_y)))
+
+    def _selecionar(self):
+        """Executa a ação da opção selecionada e retorna um sinal se for para sair."""
+        if self.selecionada == 0: # Mudar Resolução
+            self.res_idx_atual = (self.res_idx_atual + 1) % len(self.resolucoes)
+            self.game.config['resolucao'] = self.resolucoes[self.res_idx_atual]
+            self.game.tela_real, self.game.tela_virtual = self.game._aplicar_config_tela()
+        elif self.selecionada == 1: # Mudar Tela Cheia
+            self.game.config['tela_cheia'] = not self.game.config['tela_cheia']
+            self.game.tela_real, self.game.tela_virtual = self.game._aplicar_config_tela()
+        elif self.selecionada == 2: # Volume da Música
+            self.vol_idx_atual = (self.vol_idx_atual + 1) % len(self.volumes_disponiveis)
+            novo_volume = self.volumes_disponiveis[self.vol_idx_atual]
+            self.game.config['volume_musica'] = novo_volume
+            pygame.mixer.music.set_volume(novo_volume)
+
+        elif self.selecionada == 3: # Voltar
+            self.game._salvar_config()
+            return 'voltar_para_menu_principal' 
+        
+        self.atualizar_textos()
+        return None 
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_w, pygame.K_UP):
+                self.selecionada = (self.selecionada - 1) % len(self.opcoes_texto)
+            elif event.key in (pygame.K_s, pygame.K_DOWN):
+                self.selecionada = (self.selecionada + 1) % len(self.opcoes_texto)
+             # --- NOVA LÓGICA PARA NAVEGAÇÃO LATERAL ---
+            elif event.key in (pygame.K_a, pygame.K_LEFT):
+                self._mudar_opcao('esquerda')
+            elif event.key in (pygame.K_d, pygame.K_RIGHT):
+                self._mudar_opcao('direita')
+            elif event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
+                return self._selecionar() 
+
+        if event.type == pygame.MOUSEMOTION:
+            for i, rect in enumerate(self.opcoes_rects):
+                if rect.collidepoint(event.pos):
+                    self.selecionada = i
+        
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.opcoes_rects[self.selecionada].collidepoint(event.pos):
+                return self._selecionar()
+                
+        return None 
+    
+    def _mudar_opcao(self, direcao):
+        """Muda o valor de uma opção selecionada para a esquerda ou direita."""
+        if self.selecionada == 0:
+            incremento = 1 if direcao == 'direita' else -1
+            self.res_idx_atual = (self.res_idx_atual + incremento) % len(self.resolucoes)
+            self.game.config['resolucao'] = self.resolucoes[self.res_idx_atual]
+            self.game.tela_real, self.game.tela_virtual = self.game._aplicar_config_tela()
+
+        elif self.selecionada == 1:
+
+            self.game.config['tela_cheia'] = not self.game.config['tela_cheia']
+            self.game.tela_real, self.game.tela_virtual = self.game._aplicar_config_tela()
+        
+        elif self.selecionada == 2:
+            incremento = 1 if direcao == 'direita' else -1
+            self.vol_idx_atual = (self.vol_idx_atual + incremento) % len(self.volumes_disponiveis)
+            novo_volume = self.volumes_disponiveis[self.vol_idx_atual]
+            self.game.config['volume_musica'] = novo_volume
+            pygame.mixer.music.set_volume(novo_volume)
+
+        self.atualizar_textos()
+    
+    def draw(self, tela):
+        tela.blit(self.bg, (0, 0))
+        for i, texto in enumerate(self.opcoes_texto):
+            rect = self.opcoes_rects[i]
+            cor = (255, 215, 0) if i == self.selecionada else (200, 200, 200)
+            txt_surf = self.font.render(texto, True, cor)
+            tela.blit(txt_surf, rect)

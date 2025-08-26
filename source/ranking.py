@@ -19,7 +19,7 @@ class Ranking:
         # --- Carregar background ---
         self.background = pygame.image.load(join('assets', 'img', 'ranking.jpg')).convert()
         # Opcional: ajustar para a tela
-        self.background = pygame.transform.scale(self.background, (self.game.tela.get_width(), self.game.tela.get_height()))
+        self.background = pygame.transform.scale(self.background, (self.game.tela_virtual.get_width(), self.game.tela_virtual.get_height()))
 
     def start_name_input(self, score):
         self.input_mode = True

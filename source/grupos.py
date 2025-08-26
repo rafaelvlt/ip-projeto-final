@@ -12,9 +12,30 @@ class AllSprites(pygame.sprite.Group):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
         self.deslocamento = pygame.Vector2()
- 
-    def draw(self, alvo_posicao):
+
+
+
+
+    def draw(self, alvo_posicao, superfice_alvo):
+
         self.deslocamento.x = -(alvo_posicao[0] - largura_tela / 2)
         self.deslocamento.y = -(alvo_posicao[1] - altura_tela / 2)
-        for sprite in self:
-            self.display_surface.blit(sprite.image, sprite.rect.topleft + self.deslocamento)
+
+        
+        sprites_de_fundo = []
+        sprites_da_frente = []
+        for sprite in self.sprites():
+            if isinstance(sprite, Fundo):
+                sprites_de_fundo.append(sprite)
+            else:
+                sprites_da_frente.append(sprite)
+
+        # Desenha o fundo na superfície_alvo (tela_virtual)
+        for sprite in sprites_de_fundo:
+            posicao_na_tela = sprite.rect.topleft + self.deslocamento
+            superfice_alvo.blit(sprite.image, posicao_na_tela)
+
+        # Desenha os sprites da frente na superfície_alvo (tela_virtual)
+        for sprite in sorted(sprites_da_frente, key=lambda s: s.rect.centery):
+            posicao_na_tela = sprite.rect.topleft + self.deslocamento
+            superfice_alvo.blit(sprite.image, posicao_na_tela)

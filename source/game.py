@@ -1,5 +1,6 @@
 import pygame
 import random
+import json
 from os.path import join
 from settings import *
 from player import Player 
@@ -16,8 +17,13 @@ from weapon import Arma_Loop, ArmaLista, Dicionario_Divino
 
 
 class Game:
-    def __init__(self, tela):
-        self.tela = tela
+    def __init__(self):
+        #configurações
+        self.config = self._carregar_config()
+        self.tela, self.tela_virtual = self._aplicar_config_tela()
+        pygame.display.set_caption("IP-ocalipse Cin-vivors")
+
+        #variáveis de jogo
         self.running = True
         self.clock = pygame.time.Clock()
         self.estado_do_jogo = "menu_principal"
@@ -32,10 +38,18 @@ class Game:
         # Menus
         self.menu_principal = MenuPrincipal(self)
         self.menu_pausa = MenuPausa(self)
+        self.menu_opcoes = MenuOpcoes(self)
         self.tela_game_over = TelaGameOver(self)
         self.tela_colaboradores = TelaColaboradores(self)
         self.ranking = Ranking(self)
         self.tela_colaboradores = TelaColaboradores(self)
+
+        #musica
+        self.musicas = {
+            'menu': join('assets', 'sounds', 'musica_menu.ogg'),
+            'jogo': join('assets', 'sounds', 'musica_tema.wav')
+        }
+        self.musica_atual = None
 
         # Player e HUD
         self.player = None
@@ -50,6 +64,50 @@ class Game:
         self.fator_dificuldade = 0.01
         self.hordas_contagem = 0
 
+    def _carregar_config(self):
+        try:
+            with open('config.json', 'r') as f: return json.load(f)
+        except FileNotFoundError:
+            return {"resolucao": [1280, 960], "tela_cheia": False, "volume_musica": 0.3}
+
+    def _salvar_config(self):
+        with open('config.json', 'w') as f: json.dump(self.config, f, indent=4)
+
+    def _aplicar_config_tela(self):
+        largura, altura = self.config['resolucao']
+        flags = 0
+        if self.config['tela_cheia']:
+            flags = pygame.FULLSCREEN
+        
+        tela = pygame.display.set_mode((largura, altura), flags)
+        tela_virtual = pygame.Surface((LARGURA_LOGICA, ALTURA_LOGICA))
+        return tela, tela_virtual
+    
+    def _gerenciar_musica(self):
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+        musica_desejada = None
+        if self.estado_do_jogo in ['menu_principal', 'opcoes', 'ranking', 'colaboradores', 'game_over']:
+            musica_desejada = self.musicas['menu']
+        elif self.estado_do_jogo == 'jogando':
+            musica_desejada = self.musicas['jogo']
+
+        if musica_desejada and musica_desejada != self.musica_atual:
+
+            pygame.mixer.music.stop()
+            
+
+            pygame.mixer.music.load(musica_desejada)
+            pygame.mixer.music.set_volume(self.config['volume_musica'])
+            pygame.mixer.music.play(-1) 
+            
+
+            self.musica_atual = musica_desejada
+        
+        elif musica_desejada is None and self.musica_atual is not None:
+             pygame.mixer.music.pause()
+             self.musica_atual = None
+
     def iniciar_novo_jogo(self):
         self.all_sprites.empty()
         self.item_group.empty()
@@ -60,7 +118,12 @@ class Game:
         self.hordas_contagem = 0
 
         # Inicializa player
-        self.player = Player(self, 400, 300)
+        self.player = Player(
+            posicao_inicial=(self.mapa.largura_mapa_pixels / 2, self.mapa.altura_mapa_pixels),
+            sheet_player=join('assets', 'img', 'player.png'),
+            grupos=self.all_sprites,
+            game=self
+        )
         self.hud = HUD(self)
         self.estado_do_jogo = "jogando"
 
@@ -101,6 +164,8 @@ class Game:
                 escolha = self.menu_principal.handle_event(evento)
                 if escolha == 'Start Game':
                     self.iniciar_novo_jogo()
+                elif escolha == 'Opções':
+                    self.estado_do_jogo = 'opcoes'
                 if escolha == 'Colaboradores':
                     self.estado_do_jogo = 'colaboradores'
                 if escolha == 'Ranking':
@@ -116,6 +181,11 @@ class Game:
                     self.estado_do_jogo = "pausa"
 
             # PAUSA
+            elif self.estado_do_jogo == 'opcoes':
+                acao = self.menu_opcoes.handle_event(evento)
+                if acao == 'voltar_para_menu_principal':
+                    self.estado_do_jogo = 'menu_principal'
+
             elif self.estado_do_jogo == "pausa":
                 escolha = self.menu_pausa.handle_event(evento)
                 if escolha == "Continuar":
@@ -205,40 +275,63 @@ class Game:
                     elif tipo == 'cafe':
                         self.player.pontuacao += 10
                 self.estado_do_jogo = 'game_over'
-                pygame.mixer.music.pause()  # pausa a música no game over
+
 
     def draw(self):
-        self.tela.fill('black')
+        self.tela_virtual.fill('black')
+
         if self.estado_do_jogo == "menu_principal":
-            self.menu_principal.draw(self.tela)
+            self.menu_principal.draw(self.tela_virtual)
 
-        elif self.estado_do_jogo == 'jogando':
-            #desenha mapa
+        elif self.estado_do_jogo in ['jogando', 'pausa', 'level_up', 'game_over']:
             deslocamento = self.mapa.get_camera_offset(self.player.posicao, (largura_tela, altura_tela))
-            self.mapa.draw(self.tela, deslocamento)
-            self.all_sprites.draw(self.player.posicao)
-            self.hud.draw(self.tela)
+            self.mapa.draw(self.tela_virtual, deslocamento)
 
-        elif self.estado_do_jogo == 'pausa':
+            self.all_sprites.draw(self.player.posicao, self.tela_virtual)
+
+            self.hud.draw(self.tela_virtual)
+
+            if self.estado_do_jogo == 'pausa':
+                self.menu_pausa.draw(self.tela_virtual)
+
+            elif self.estado_do_jogo == 'level_up' and self.tela_de_upgrade_ativa:
+                self.tela_de_upgrade_ativa.draw(self.tela_virtual)
+
+            elif self.estado_do_jogo == 'game_over':
+                self.tela_game_over.draw(self.tela_virtual)
             
-            self.all_sprites.draw(self.player.posicao)
-            self.menu_pausa.draw(self.tela)
-
+        elif self.estado_do_jogo == 'opcoes':
+            self.menu_opcoes.draw(self.tela_virtual)
+            
         elif self.estado_do_jogo == 'colaboradores':
-            self.tela_colaboradores.draw(self.tela)
+            self.tela_colaboradores.draw(self.tela_virtual)
 
         elif self.estado_do_jogo == 'ranking':
-            self.ranking.draw(self.tela)
-
-        elif self.estado_do_jogo == "game_over":
-            self.tela_game_over.draw(self.tela)
-
-        elif self.estado_do_jogo == "level_up":
-            self.all_sprites.draw(self.player.posicao)
-            self.hud.draw(self.tela)
-            self.tela_de_upgrade_ativa.draw(self.tela)
-
+            self.ranking.draw(self.tela_virtual)
+        
+        self._projetar_na_tela_real()
         pygame.display.update()
+    
+    def _projetar_na_tela_real(self):
+        """Pega a tela_virtual, redimensiona e desenha na tela_real."""
+        self.tela.fill((0, 0, 0))
+
+        
+        escala_x = self.tela.get_width() / LARGURA_LOGICA
+        escala_y = self.tela.get_height() / ALTURA_LOGICA
+        fator_escala = min(escala_x, escala_y)
+
+        
+        nova_largura = int(LARGURA_LOGICA * fator_escala)
+        nova_altura = int(ALTURA_LOGICA * fator_escala)
+        tela_escalada = pygame.transform.scale(self.tela_virtual, (nova_largura, nova_altura))
+        
+        
+        pos_x = (self.tela.get_width() - nova_largura) / 2
+        pos_y = (self.tela.get_height() - nova_altura) / 2
+
+        
+        self.tela.blit(tela_escalada, (pos_x, pos_y))
     
     def iniciar_novo_jogo(self):
         self.all_sprites.empty()
@@ -260,14 +353,7 @@ class Game:
             game=self
         )
 
-        # Certifique que o mixer está inicializado (melhor garantir)
-        if not pygame.mixer.get_init():
-            pygame.mixer.init()
 
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load(join('assets', 'sounds', 'musica_tema.wav'))
-        pygame.mixer.music.set_volume(0.3)
-        pygame.mixer.music.play(-1)
 
         if not hasattr(self.player, 'armas'):
             self.player.armas = {}
@@ -372,6 +458,8 @@ class Game:
                 inimigo.morrer((self.all_sprites, self.item_group))
     def run(self):
         while self.running:
+            self._gerenciar_musica()
+
             delta_time = self.clock.tick(fps) / 1000
             self.eventos()
             self.update(delta_time)

@@ -4,8 +4,11 @@ from random import randint
 from abc import ABC, abstractmethod
 
 
-largura_tela = 1280
-altura_tela = 720
+
+LARGURA_LOGICA = 1280
+ALTURA_LOGICA = 720
+largura_tela = LARGURA_LOGICA
+altura_tela = ALTURA_LOGICA
 
 LARGURA_MAPA = 15360 
 ALTURA_MAPA = 10240 
